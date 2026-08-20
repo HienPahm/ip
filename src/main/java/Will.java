@@ -14,6 +14,9 @@ public class Will {
         printMessage("How may I assist you?");
         printLine();
 
+        String[] tasks = new String[100];
+        int taskCount = 0;
+
         Scanner scanner = new Scanner(System.in);
         while (true) {
             String input = scanner.nextLine();
@@ -21,9 +24,17 @@ public class Will {
                 printMessage("Seee yaaaa! Meet again soon!");
                 printLine();
                 break;
+            } else if (input.equals("list")) {
+                for (int i = 0; i < taskCount; i++) {
+                    printMessage((i + 1) + ". " + tasks[i]);
+                }
+                printLine();
+            } else {
+                tasks[taskCount] = input;
+                taskCount++;
+                printMessage("added: " + input);
+                printLine();
             }
-            printMessage(input);
-            printLine();
         }
 
         scanner.close();
