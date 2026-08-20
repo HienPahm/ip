@@ -191,3 +191,113 @@ bye
      1.[T][ ] borrow book
      2.[T][X] join sports club
 ```
+
+### TC10 — Empty todo description
+
+**Aim:** `todo` with no description is rejected with a `WillException`
+error message instead of adding a blank task.
+
+**Inputs:**
+```
+todo
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! A todo needs a description! Try: todo <what you need to do>
+```
+
+### TC11 — Unknown command
+
+**Aim:** An unrecognized command (e.g. `blah`) is rejected with an error
+message instead of being silently ignored or crashing.
+
+**Inputs:**
+```
+blah
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! I don't recognize that command. Try: todo, deadline, event, list, mark, unmark, or bye.
+```
+
+### TC12 — mark with no task number
+
+**Aim:** `mark` with no argument reports a specific error rather than
+throwing an unhandled exception.
+
+**Inputs:**
+```
+mark
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Tell me which task number! Try: mark <task number>
+```
+
+### TC13 — mark with an out-of-range task number
+
+**Aim:** `mark <n>` where `n` doesn't correspond to an existing task
+reports how many tasks actually exist.
+
+**Inputs:**
+```
+mark 99
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Task number 99 doesn't exist. You have 0 task(s) in your list.
+```
+
+### TC14 — mark with a non-numeric task number
+
+**Aim:** `mark <not a number>` is rejected with a specific message.
+
+**Inputs:**
+```
+mark abc
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! "abc" isn't a valid task number.
+```
+
+### TC15 — Deadline missing /by
+
+**Aim:** `deadline <description>` with no `/by` clause is rejected.
+
+**Inputs:**
+```
+deadline return book
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! A deadline needs a description and a /by time! Try: deadline <what you need to do> /by <when it's due>
+```
+
+### TC16 — Event missing /to
+
+**Aim:** `event <description> /from <start>` with no `/to` clause is
+rejected.
+
+**Inputs:**
+```
+event meeting /from Mon
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! An event needs a description, a /from time and a /to time! Try: event <what's happening> /from <start> /to <end>
+```
