@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Will {
@@ -14,8 +15,7 @@ public class Will {
         printMessage("How may I assist you?");
         printLine();
 
-        Task[] tasks = new Task[100];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -30,31 +30,37 @@ public class Will {
                     break;
                 } else if (command.equals("list")) {
                     printMessage("Here are the tasks in your list:");
-                    for (int i = 0; i < taskCount; i++) {
-                        printMessage((i + 1) + "." + tasks[i].toString());
+                    for (int i = 0; i < tasks.size(); i++) {
+                        printMessage((i + 1) + "." + tasks.get(i).toString());
                     }
                     printLine();
                 } else if (command.equals("mark")) {
-                    int index = parseTaskIndex(rest, taskCount);
-                    tasks[index].markAsDone();
+                    int index = parseTaskIndex(command, rest, tasks.size());
+                    tasks.get(index).markAsDone();
                     printMessage("Amazing Gangie! I've marked this task as done:");
-                    printMessage("  " + tasks[index].toString());
+                    printMessage("  " + tasks.get(index).toString());
                     printLine();
                 } else if (command.equals("unmark")) {
-                    int index = parseTaskIndex(rest, taskCount);
-                    tasks[index].markAsNotDone();
+                    int index = parseTaskIndex(command, rest, tasks.size());
+                    tasks.get(index).markAsNotDone();
                     printMessage("OK, I've marked this task as not done yet:");
-                    printMessage("  " + tasks[index].toString());
+                    printMessage("  " + tasks.get(index).toString());
+                    printLine();
+                } else if (command.equals("delete")) {
+                    int index = parseTaskIndex(command, rest, tasks.size());
+                    Task removed = tasks.remove(index);
+                    printMessage("Noted. I've removed this task:");
+                    printMessage("  " + removed.toString());
+                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
                     printLine();
                 } else if (command.equals("todo")) {
                     if (rest.isEmpty()) {
                         throw new WillException("A todo needs a description! Try: todo <what you need to do>");
                     }
-                    tasks[taskCount] = new Todo(rest);
-                    taskCount++;
+                    tasks.add(new Todo(rest));
                     printMessage("Got it. I've added this task:");
-                    printMessage("  " + tasks[taskCount - 1].toString());
-                    printMessage("Now you have " + taskCount + " tasks in the list.");
+                    printMessage("  " + tasks.get(tasks.size() - 1).toString());
+                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
                     printLine();
                 } else if (command.equals("deadline")) {
                     if (rest.isEmpty() || !rest.contains("/by")) {
@@ -71,11 +77,10 @@ public class Will {
                         throw new WillException("Tell me when this deadline is due! "
                                 + "Try: deadline <what you need to do> /by <when it's due>");
                     }
-                    tasks[taskCount] = new Deadline(description, by);
-                    taskCount++;
+                    tasks.add(new Deadline(description, by));
                     printMessage("Got it. I've added this task:");
-                    printMessage("  " + tasks[taskCount - 1].toString());
-                    printMessage("Now you have " + taskCount + " tasks in the list.");
+                    printMessage("  " + tasks.get(tasks.size() - 1).toString());
+                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
                     printLine();
                 } else if (command.equals("event")) {
                     if (rest.isEmpty() || !rest.contains("/from") || !rest.contains("/to")) {
@@ -97,15 +102,14 @@ public class Will {
                         throw new WillException("Tell me when this event ends! "
                                 + "Try: event <what's happening> /from <start> /to <end>");
                     }
-                    tasks[taskCount] = new Event(description, from, to);
-                    taskCount++;
+                    tasks.add(new Event(description, from, to));
                     printMessage("Got it. I've added this task:");
-                    printMessage("  " + tasks[taskCount - 1].toString());
-                    printMessage("Now you have " + taskCount + " tasks in the list.");
+                    printMessage("  " + tasks.get(tasks.size() - 1).toString());
+                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
                     printLine();
                 } else {
                     throw new WillException("I don't recognize that command. "
-                            + "Try: todo, deadline, event, list, mark, unmark, or bye.");
+                            + "Try: todo, deadline, event, list, mark, unmark, delete, or bye.");
                 }
             } catch (WillException e) {
                 printMessage("OOPS!!! " + e.getMessage());
@@ -117,12 +121,12 @@ public class Will {
     }
 
     /**
-     * Parses the task number argument for mark/unmark, validating that it
-     * is present, numeric, and refers to an existing task.
+     * Parses the task number argument for mark/unmark/delete, validating
+     * that it is present, numeric, and refers to an existing task.
      */
-    private static int parseTaskIndex(String rest, int taskCount) throws WillException {
+    private static int parseTaskIndex(String command, String rest, int taskCount) throws WillException {
         if (rest.isEmpty()) {
-            throw new WillException("Tell me which task number! Try: mark <task number>");
+            throw new WillException("Tell me which task number! Try: " + command + " <task number>");
         }
         int index;
         try {

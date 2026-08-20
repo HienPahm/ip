@@ -221,7 +221,7 @@ bye
 
 **Expected output (error section only):**
 ```
-     OOPS!!! I don't recognize that command. Try: todo, deadline, event, list, mark, unmark, or bye.
+     OOPS!!! I don't recognize that command. Try: todo, deadline, event, list, mark, unmark, delete, or bye.
 ```
 
 ### TC12 — mark with no task number
@@ -453,4 +453,69 @@ bye
 ```
      Here are the tasks in your list:
      1.[T][ ] take out trash
+```
+
+### TC24 — Delete a task
+
+**Aim:** `delete <index>` removes the task at that (1-indexed) position,
+echoes it back, and reports the new count.
+
+**Inputs:**
+```
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+delete 3
+list
+bye
+```
+
+**Expected output:**
+```
+     Noted. I've removed this task:
+       [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] read book
+     2.[D][ ] return book (by: June 6th)
+```
+(Note: the task numbers renumber after the delete — the old "task 2"
+`return book` is now "1.", confirming this is a real removal from an
+`ArrayList<Task>`, not just blanking a slot.)
+
+### TC25 — delete with no task number
+
+**Aim:** `delete` with no argument reports a specific error.
+
+**Inputs:**
+```
+delete
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Tell me which task number! Try: delete <task number>
+```
+
+### TC26 — delete with an out-of-range task number
+
+**Aim:** `delete <n>` where `n` doesn't correspond to an existing task is
+rejected and does not remove anything.
+
+**Inputs:**
+```
+todo read book
+delete 99
+list
+bye
+```
+
+**Expected output:**
+```
+     OOPS!!! Task number 99 doesn't exist. You have 1 task(s) in your list.
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] read book
 ```
