@@ -60,6 +60,17 @@ public class Will {
                 printMessage("  " + tasks[taskCount - 1].toString());
                 printMessage("Now you have " + taskCount + " tasks in the list.");
                 printLine();
+            } else if (input.startsWith("event ")) {
+                String details = input.substring(6).trim();
+                String description = details.substring(0, details.indexOf("/from")).trim();
+                String from = details.substring(details.indexOf("/from") + 5, details.indexOf("/to")).trim();
+                String to = details.substring(details.indexOf("/to") + 3).trim();
+                tasks[taskCount] = new Event(description, from, to);
+                taskCount++;
+                printMessage("Got it. I've added this task:");
+                printMessage("  " + tasks[taskCount - 1].toString());
+                printMessage("Now you have " + taskCount + " tasks in the list.");
+                printLine();
             } else {
                 tasks[taskCount] = new Task(input);
                 taskCount++;
