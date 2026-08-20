@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Will {
     public static void main(String[] args) {
         String logo = " __        _____ _     _     \n"
@@ -5,15 +7,33 @@ public class Will {
                 + "  \\ \\ /\\ / / | || |   | |    \n"
                 + "   \\ V  V /  | || |___| |___ \n"
                 + "    \\_/\\_/  |___|_____|_____|\n";
-        String line = "____________________________________________________________";
 
-        System.out.println(line);
+        printLine();
         System.out.println(logo);
-        System.out.println("What's up!!! I'm Will.");
-        System.out.println("How may I assist you?");
-        System.out.println(line);
+        printMessage("What's up!!! I'm Will.");
+        printMessage("How may I assist you?");
+        printLine();
 
-        System.out.println("Seee yaaaa! Meet again soon!");
-        System.out.println(line);
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String input = scanner.nextLine();
+            if (input.equals("bye")) {
+                printMessage("Seee yaaaa! Meet again soon!");
+                printLine();
+                break;
+            }
+            printMessage(input);
+            printLine();
+        }
+
+        scanner.close();
+    }
+
+    private static void printLine() {
+        System.out.println("    ____________________________________________________________");
+    }
+
+    private static void printMessage(String message) {
+        System.out.println("     " + message);
     }
 }
