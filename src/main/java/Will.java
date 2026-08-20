@@ -27,20 +27,28 @@ public class Will {
             } else if (input.equals("list")) {
                 printMessage("Here are the tasks in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    printMessage((i + 1) + ".[" + tasks[i].getStatusIcon() + "] " + tasks[i].getDescription());
+                    printMessage((i + 1) + "." + tasks[i].toString());
                 }
                 printLine();
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5).trim()) - 1;
                 tasks[index].markAsDone();
                 printMessage("Amazing Gangie! I've marked this task as done:");
-                printMessage("  [" + tasks[index].getStatusIcon() + "] " + tasks[index].getDescription());
+                printMessage("  " + tasks[index].toString());
                 printLine();
             } else if (input.startsWith("unmark ")) {
                 int index = Integer.parseInt(input.substring(7).trim()) - 1;
                 tasks[index].markAsNotDone();
                 printMessage("OK, I've marked this task as not done yet:");
-                printMessage("  [" + tasks[index].getStatusIcon() + "] " + tasks[index].getDescription());
+                printMessage("  " + tasks[index].toString());
+                printLine();
+            } else if (input.startsWith("todo ")) {
+                String description = input.substring(5).trim();
+                tasks[taskCount] = new Todo(description);
+                taskCount++;
+                printMessage("Got it. I've added this task:");
+                printMessage("  " + tasks[taskCount - 1].toString());
+                printMessage("Now you have " + taskCount + " tasks in the list.");
                 printLine();
             } else {
                 tasks[taskCount] = new Task(input);
