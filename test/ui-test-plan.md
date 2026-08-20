@@ -301,3 +301,156 @@ bye
 ```
      OOPS!!! An event needs a description, a /from time and a /to time! Try: event <what's happening> /from <start> /to <end>
 ```
+
+## Edge-case / internal-state tests
+
+The tests below interleave valid commands with invalid ones and re-check
+`list` afterwards. Their purpose isn't just "does this command error" —
+it's "does a rejected command leave the task list/state exactly as it
+was", which a plain per-command test can miss (e.g. a bug that increments
+the task counter even when validation fails, or that half-applies a
+change before throwing).
+
+### TC17 — A rejected command does not change the task count or list
+
+**Aim:** After a valid `todo`, an unrecognized command must not add a
+phantom task or otherwise change what `list` shows.
+
+**Inputs:**
+```
+todo take out trash
+blah
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][ ] take out trash
+```
+
+### TC18 — mark with task number 0 (just below the valid range)
+
+**Aim:** Task numbers are 1-indexed; `mark 0` must be rejected as
+out-of-range, not treated as a valid (off-by-one) index.
+
+**Inputs:**
+```
+todo take out trash
+todo buy milk
+mark 0
+list
+bye
+```
+
+**Expected output:**
+```
+     OOPS!!! Task number 0 doesn't exist. You have 2 task(s) in your list.
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] take out trash
+     2.[T][ ] buy milk
+```
+(Note: both tasks must still show `[ ]` — the rejected `mark 0` must not
+have flipped either task's status.)
+
+### TC19 — mark with a negative task number
+
+**Aim:** A negative task number is rejected as out-of-range rather than
+wrapping around or crashing.
+
+**Inputs:**
+```
+todo take out trash
+mark -1
+list
+bye
+```
+
+**Expected output:**
+```
+     OOPS!!! Task number -1 doesn't exist. You have 1 task(s) in your list.
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] take out trash
+```
+
+### TC20 — Internal whitespace in a description is preserved
+
+**Aim:** Leading/trailing whitespace around the command is trimmed, but
+whitespace the user typed inside the description itself is left alone.
+
+**Inputs:**
+```
+todo    read   book
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][ ] read   book
+```
+
+### TC21 — Deadline with /by but an empty description
+
+**Aim:** `deadline /by <when>` (nothing before `/by`) is rejected with the
+"needs a description" message, not treated as a deadline with a blank
+description.
+
+**Inputs:**
+```
+deadline /by Monday
+list
+bye
+```
+
+**Expected output:**
+```
+     OOPS!!! A deadline needs a description before /by! Try: deadline <what you need to do> /by <when it's due>
+    ____________________________________________________________
+     Here are the tasks in your list:
+```
+(Note: `list` afterwards must show no tasks — the rejected deadline must
+not have been added.)
+
+### TC22 — Event with /from but an empty description
+
+**Aim:** `event /from <start> /to <end>` (nothing before `/from`) is
+rejected with the "needs a description" message.
+
+**Inputs:**
+```
+event /from Mon /to 5pm
+list
+bye
+```
+
+**Expected output:**
+```
+     OOPS!!! An event needs a description before /from! Try: event <what's happening> /from <start> /to <end>
+    ____________________________________________________________
+     Here are the tasks in your list:
+```
+
+### TC23 — Unmarking an already-not-done task is idempotent
+
+**Aim:** `unmark` on a task that's already not done should not error —
+it's a valid (if redundant) request, and the task must remain `[ ]`.
+
+**Inputs:**
+```
+todo take out trash
+unmark 1
+unmark 1
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][ ] take out trash
+```
