@@ -50,6 +50,16 @@ public class Will {
                 printMessage("  " + tasks[taskCount - 1].toString());
                 printMessage("Now you have " + taskCount + " tasks in the list.");
                 printLine();
+            } else if (input.startsWith("deadline ")) {
+                String details = input.substring(9).trim();
+                String description = details.substring(0, details.indexOf("/by")).trim();
+                String by = details.substring(details.indexOf("/by") + 3).trim();
+                tasks[taskCount] = new Deadline(description, by);
+                taskCount++;
+                printMessage("Got it. I've added this task:");
+                printMessage("  " + tasks[taskCount - 1].toString());
+                printMessage("Now you have " + taskCount + " tasks in the list.");
+                printLine();
             } else {
                 tasks[taskCount] = new Task(input);
                 taskCount++;
