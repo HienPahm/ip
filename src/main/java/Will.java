@@ -37,6 +37,12 @@ public class Will {
                 printMessage("Amazing Gangie! I've marked this task as done:");
                 printMessage("  " + statusIcon(isDone[index]) + " " + tasks[index]);
                 printLine();
+            } else if (input.startsWith("unmark ")) {
+                int index = Integer.parseInt(input.substring(7).trim()) - 1;
+                isDone[index] = false;
+                printMessage("OK, I've marked this task as not done yet:");
+                printMessage("  " + statusIcon(isDone[index]) + " " + tasks[index]);
+                printLine();
             } else {
                 tasks[taskCount] = input;
                 isDone[taskCount] = false;
