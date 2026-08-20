@@ -14,8 +14,7 @@ public class Will {
         printMessage("How may I assist you?");
         printLine();
 
-        String[] tasks = new String[100];
-        boolean[] isDone = new boolean[100];
+        Task[] tasks = new Task[100];
         int taskCount = 0;
 
         Scanner scanner = new Scanner(System.in);
@@ -28,24 +27,23 @@ public class Will {
             } else if (input.equals("list")) {
                 printMessage("Here are the tasks in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    printMessage((i + 1) + "." + statusIcon(isDone[i]) + " " + tasks[i]);
+                    printMessage((i + 1) + ".[" + tasks[i].getStatusIcon() + "] " + tasks[i].getDescription());
                 }
                 printLine();
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5).trim()) - 1;
-                isDone[index] = true;
+                tasks[index].markAsDone();
                 printMessage("Amazing Gangie! I've marked this task as done:");
-                printMessage("  " + statusIcon(isDone[index]) + " " + tasks[index]);
+                printMessage("  [" + tasks[index].getStatusIcon() + "] " + tasks[index].getDescription());
                 printLine();
             } else if (input.startsWith("unmark ")) {
                 int index = Integer.parseInt(input.substring(7).trim()) - 1;
-                isDone[index] = false;
+                tasks[index].markAsNotDone();
                 printMessage("OK, I've marked this task as not done yet:");
-                printMessage("  " + statusIcon(isDone[index]) + " " + tasks[index]);
+                printMessage("  [" + tasks[index].getStatusIcon() + "] " + tasks[index].getDescription());
                 printLine();
             } else {
-                tasks[taskCount] = input;
-                isDone[taskCount] = false;
+                tasks[taskCount] = new Task(input);
                 taskCount++;
                 printMessage("added: " + input);
                 printLine();
@@ -53,10 +51,6 @@ public class Will {
         }
 
         scanner.close();
-    }
-
-    private static String statusIcon(boolean done) {
-        return done ? "[X]" : "[ ]";
     }
 
     private static void printLine() {
