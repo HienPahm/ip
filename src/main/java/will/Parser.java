@@ -7,6 +7,7 @@ import will.command.AddCommand;
 import will.command.Command;
 import will.command.DeleteCommand;
 import will.command.ExitCommand;
+import will.command.FindCommand;
 import will.command.ListCommand;
 import will.command.MarkCommand;
 import will.command.OnCommand;
@@ -59,9 +60,11 @@ public class Parser {
             return parseDeadline(rest);
         } else if (command.equals("event")) {
             return parseEvent(rest);
+        } else if (command.equals("find")) {
+            return parseFind(rest);
         } else {
             throw new WillException("I don't recognize that command. "
-                    + "Try: todo, deadline, event, list, on, mark, unmark, delete, or bye.");
+                    + "Try: todo, deadline, event, list, on, find, mark, unmark, delete, or bye.");
         }
     }
 
@@ -78,6 +81,14 @@ public class Parser {
                     + "Try: on <yyyy-MM-dd>, e.g. on 2019-10-15");
         }
         return new OnCommand(queryDate);
+    }
+
+    /** Parses the argument for "find" into a FindCommand. */
+    private static Command parseFind(String rest) throws WillException {
+        if (rest.isEmpty()) {
+            throw new WillException("Tell me what to search for! Try: find <keyword>");
+        }
+        return new FindCommand(rest);
     }
 
     /**

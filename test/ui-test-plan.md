@@ -953,6 +953,89 @@ bye
      OOPS!!! Tell me which date! Try: on <yyyy-MM-dd>, e.g. on 2019-10-15
 ```
 
+## Finding tasks by keyword (Level 9)
+
+The `find <keyword>` command lists every task whose description
+contains the given keyword, case-insensitively. Matches are
+renumbered 1, 2, ... within the filtered results, not by their
+original position in `list`. The task type and done status have no
+bearing on matching — only the description text is searched.
+
+### TC44 — `find` matches a keyword across multiple task types
+
+**Aim:** A keyword appearing in a todo's, deadline's, and event's
+description all show up; an unrelated task does not.
+
+**Inputs:**
+```
+todo read book
+deadline return book /by 2019-10-15
+event book club meeting /from 2019-10-20 /to 2019-10-20
+todo buy groceries
+find book
+bye
+```
+
+**Expected output (find-command section only):**
+```
+     Here are the matching tasks in your list:
+     1.[T][ ] read book
+     2.[D][ ] return book (by: Oct 15 2019)
+     3.[E][ ] book club meeting (from: Oct 20 2019 to: Oct 20 2019)
+```
+
+### TC45 — `find` is case-insensitive
+
+**Aim:** A keyword typed in a different case from the stored
+description still matches.
+
+**Inputs:**
+```
+todo read Book
+find BOOK
+bye
+```
+
+**Expected output (find-command section only):**
+```
+     Here are the matching tasks in your list:
+     1.[T][ ] read Book
+```
+
+### TC46 — `find` with no matches prints an empty (but not erroring) list
+
+**Aim:** Searching for a keyword nothing matches shows the header with
+zero results, not an error.
+
+**Inputs:**
+```
+todo read book
+find xyz
+bye
+```
+
+**Expected output (find-command section only):**
+```
+     Here are the matching tasks in your list:
+    ____________________________________________________________
+     Seee yaaaa! Meet again soon!
+```
+
+### TC47 — `find` with no keyword is rejected
+
+**Aim:** `find` alone (no keyword) reports a specific error.
+
+**Inputs:**
+```
+find
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Tell me what to search for! Try: find <keyword>
+```
+
 ## A-MoreOOP refactor verification
 
 Extracting `Ui`, `Storage`, `Parser`, and `TaskList` out of `Will` is a pure
