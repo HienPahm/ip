@@ -956,3 +956,8 @@ expects, that is a regression, not an intentional update.
   `Will` into a new `Ui` class. Re-ran TC1–TC43: 42/42 automated cases
   passed (TC39 remains the one manually-verified case, unaffected by this
   change since it doesn't touch save/load or dates).
+- **Increment 2 (extract `Storage`)** — moved `loadTasks`/`saveTasks`/
+  `parseSavedTask` and the save-file path out of `Will` into a new
+  `Storage` class (`load(ui)` / `save(tasks)`). Re-ran TC1–TC43: 42/42
+  automated cases passed, including the save/load cases (TC27–TC30) and
+  the manually-verified round-trip case (TC39).

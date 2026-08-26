@@ -1,23 +1,18 @@
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Will {
-    // Relative, OS-independent path (Paths.get joins with the right
-    // separator for whatever OS this runs on): ./data/will.txt
-    private static final Path DATA_FILE = Paths.get("data", "will.txt");
-
     public static void main(String[] args) {
         Ui ui = new Ui();
         ui.showWelcome();
 
-        ArrayList<Task> tasks = loadTasks(ui);
+        // Relative, OS-independent path (Paths.get joins with the right
+        // separator for whatever OS this runs on): ./data/will.txt
+        Storage storage = new Storage(Paths.get("data", "will.txt"));
+        ArrayList<Task> tasks = storage.load(ui);
         ui.showLine();
 
         Scanner scanner = new Scanner(System.in);
@@ -68,21 +63,21 @@ public class Will {
                 } else if (command.equals("mark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsDone();
-                    saveTasks(tasks);
+                    storage.save(tasks);
                     ui.showMessage("Amazing Gangie! I've marked this task as done:");
                     ui.showMessage("  " + tasks.get(index).toString());
                     ui.showLine();
                 } else if (command.equals("unmark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsNotDone();
-                    saveTasks(tasks);
+                    storage.save(tasks);
                     ui.showMessage("OK, I've marked this task as not done yet:");
                     ui.showMessage("  " + tasks.get(index).toString());
                     ui.showLine();
                 } else if (command.equals("delete")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     Task removed = tasks.remove(index);
-                    saveTasks(tasks);
+                    storage.save(tasks);
                     ui.showMessage("Noted. I've removed this task:");
                     ui.showMessage("  " + removed.toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -93,7 +88,7 @@ public class Will {
                     }
                     requireNoPipe(rest, "description");
                     tasks.add(new Todo(rest));
-                    saveTasks(tasks);
+                    storage.save(tasks);
                     ui.showMessage("Got it. I've added this task:");
                     ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -116,7 +111,7 @@ public class Will {
                     requireNoPipe(description, "description");
                     requireNoPipe(by, "/by time");
                     tasks.add(new Deadline(description, by));
-                    saveTasks(tasks);
+                    storage.save(tasks);
                     ui.showMessage("Got it. I've added this task:");
                     ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -151,7 +146,7 @@ public class Will {
                     requireNoPipe(from, "/from time");
                     requireNoPipe(to, "/to time");
                     tasks.add(new Event(description, from, to));
-                    saveTasks(tasks);
+                    storage.save(tasks);
                     ui.showMessage("Got it. I've added this task:");
                     ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -202,100 +197,6 @@ public class Will {
             throw new WillException("Sorry, the " + label + " can't contain a \"|\" character — "
                     + "try rephrasing without it.");
         }
-    }
-
-    /**
-     * Writes the current task list to disk, one task per line in
-     * Task#toSaveFormat(). Creates the ./data folder first if it doesn't
-     * exist yet, so this works on a fresh checkout where the folder has
-     * never been created. On failure, reports it as a WillException
-     * rather than crashing, so a save error is just another "OOPS!!!"
-     * message and the session keeps running.
-     */
-    private static void saveTasks(ArrayList<Task> tasks) throws WillException {
-        try {
-            Files.createDirectories(DATA_FILE.getParent());
-            StringBuilder content = new StringBuilder();
-            for (Task task : tasks) {
-                content.append(task.toSaveFormat()).append(System.lineSeparator());
-            }
-            Files.writeString(DATA_FILE, content.toString());
-        } catch (IOException e) {
-            throw new WillException("I couldn't save your tasks to disk: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Loads the task list from disk at startup. If the data file doesn't
-     * exist yet (e.g. this is the first time the program has ever been
-     * run), returns an empty list rather than treating that as an error.
-     * A line that fails to parse is skipped with a warning instead of
-     * aborting the whole load, so one corrupted line doesn't cost the
-     * user every other saved task.
-     */
-    private static ArrayList<Task> loadTasks(Ui ui) {
-        ArrayList<Task> tasks = new ArrayList<>();
-        if (!Files.exists(DATA_FILE)) {
-            return tasks;
-        }
-        try {
-            List<String> lines = Files.readAllLines(DATA_FILE);
-            for (String line : lines) {
-                if (line.isBlank()) {
-                    continue;
-                }
-                try {
-                    tasks.add(parseSavedTask(line));
-                } catch (WillException e) {
-                    ui.showMessage("OOPS!!! Skipping a corrupted line in the data file: " + e.getMessage());
-                }
-            }
-        } catch (IOException e) {
-            ui.showMessage("OOPS!!! I couldn't load your saved tasks: " + e.getMessage());
-        }
-        return tasks;
-    }
-
-    /**
-     * Parses one line of the data file (Task#toSaveFormat()'s format)
-     * back into the matching Task subclass.
-     */
-    private static Task parseSavedTask(String line) throws WillException {
-        String[] parts = line.split("\\s*\\|\\s*");
-        if (parts.length < 3) {
-            throw new WillException("\"" + line + "\" doesn't have enough fields.");
-        }
-        String typeSymbol = parts[0];
-        if (!parts[1].equals("0") && !parts[1].equals("1")) {
-            throw new WillException("\"" + line + "\" has an invalid done flag (expected 0 or 1).");
-        }
-        boolean isDone = parts[1].equals("1");
-        String description = parts[2];
-        if (description.isBlank()) {
-            throw new WillException("\"" + line + "\" has an empty description.");
-        }
-
-        Task task;
-        if (typeSymbol.equals(TaskType.TODO.getSymbol())) {
-            task = new Todo(description);
-        } else if (typeSymbol.equals(TaskType.DEADLINE.getSymbol())) {
-            if (parts.length < 4 || parts[3].isBlank()) {
-                throw new WillException("\"" + line + "\" is missing its /by field.");
-            }
-            task = new Deadline(description, parts[3]);
-        } else if (typeSymbol.equals(TaskType.EVENT.getSymbol())) {
-            if (parts.length < 5 || parts[3].isBlank() || parts[4].isBlank()) {
-                throw new WillException("\"" + line + "\" is missing its /from or /to field.");
-            }
-            task = new Event(description, parts[3], parts[4]);
-        } else {
-            throw new WillException("\"" + typeSymbol + "\" isn't a recognized task type.");
-        }
-
-        if (isDone) {
-            task.markAsDone();
-        }
-        return task;
     }
 
 }
