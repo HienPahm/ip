@@ -1057,3 +1057,18 @@ GitHub release instead.
 - **Run it** (per the course's assumed usage — copy into an empty
   folder, open a command window there, run from that folder):
   `java -jar "will.jar"`.
+
+## A-JavaDoc verification
+
+Added header (Javadoc) comments to all non-private classes and
+methods, plus the non-trivial private helper methods in Parser
+(stretch goal). Straightforward `@Override` implementations whose
+behavior is already described by the class-level Javadoc or by the
+abstract method they implement (e.g. each Command subclass's
+`execute()`) were left to inherit that documentation rather than
+repeating it, per the SE-EDU convention's own exception for overrides.
+
+No behavior changes — comments only, plus one import-order fix in
+OnCommand (found during the same pass) — so the manual UI suite
+(TC1–TC43) and the JUnit suite are both unaffected. Compiled cleanly
+in a sandbox JDK to confirm no syntax errors from the additions.

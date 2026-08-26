@@ -9,6 +9,7 @@ import will.WillException;
 public class UnmarkCommand extends Command {
     private final int index;
 
+    /** @param index Zero-based index of the task to mark not done. */
     public UnmarkCommand(int index) {
         this.index = index;
     }

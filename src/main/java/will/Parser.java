@@ -26,6 +26,15 @@ import will.task.Todo;
  * sees the TaskList — that check happens in the Command's execute().
  */
 public class Parser {
+    /**
+     * Turns one line of raw user input into the {@link Command} that
+     * knows how to carry it out.
+     *
+     * @param fullCommand The raw command line, e.g. "mark 2".
+     * @return The Command to execute.
+     * @throws WillException If the command isn't recognized, or is
+     *                       missing/has malformed arguments.
+     */
     public static Command parse(String fullCommand) throws WillException {
         String command = fullCommand.split(" ", 2)[0].toLowerCase();
         String rest = fullCommand.length() > command.length()
@@ -56,6 +65,7 @@ public class Parser {
         }
     }
 
+    /** Parses the argument for "on " into an {@link OnCommand}. */
     private static Command parseOn(String rest) throws WillException {
         if (rest.isEmpty()) {
             throw new WillException("Tell me which date! Try: on <yyyy-MM-dd>, e.g. on 2019-10-15");
@@ -87,6 +97,7 @@ public class Parser {
         }
     }
 
+    /** Parses the argument for "todo" into an AddCommand wrapping a Todo. */
     private static Command parseTodo(String rest) throws WillException {
         if (rest.isEmpty()) {
             throw new WillException("A todo needs a description! Try: todo <what you need to do>");
@@ -95,6 +106,10 @@ public class Parser {
         return new AddCommand(new Todo(rest));
     }
 
+    /**
+     * Parses the argument for "deadline" (a description and a /by
+     * time) into an AddCommand wrapping a Deadline.
+     */
     private static Command parseDeadline(String rest) throws WillException {
         if (rest.isEmpty() || !rest.contains("/by")) {
             throw new WillException("A deadline needs a description and a /by time! "
@@ -115,6 +130,10 @@ public class Parser {
         return new AddCommand(new Deadline(description, by));
     }
 
+    /**
+     * Parses the argument for "event" (a description, a /from time,
+     * and a /to time) into an AddCommand wrapping an Event.
+     */
     private static Command parseEvent(String rest) throws WillException {
         if (rest.isEmpty() || !rest.contains("/from") || !rest.contains("/to")) {
             throw new WillException("An event needs a description, a /from time and a /to time! "

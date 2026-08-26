@@ -20,6 +20,7 @@ import will.task.Todo;
 public class Storage {
     private final Path filePath;
 
+    /** @param filePath Where the task list is loaded from and saved to. */
     public Storage(Path filePath) {
         this.filePath = filePath;
     }
