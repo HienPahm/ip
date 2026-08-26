@@ -26,6 +26,15 @@ import will.task.Todo;
  * sees the TaskList — that check happens in the Command's execute().
  */
 public class Parser {
+    /**
+     * Turns one line of raw user input into the {@link Command} that
+     * knows how to carry it out.
+     *
+     * @param fullCommand The raw command line, e.g. "mark 2".
+     * @return The Command to execute.
+     * @throws WillException If the command isn't recognized, or is
+     *                       missing/has malformed arguments.
+     */
     public static Command parse(String fullCommand) throws WillException {
         String command = fullCommand.split(" ", 2)[0].toLowerCase();
         String rest = fullCommand.length() > command.length()

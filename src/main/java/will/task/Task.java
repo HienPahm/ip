@@ -2,6 +2,13 @@ package will.task;
 
 import java.time.LocalDate;
 
+/**
+ * A single task tracked by the chatbot: a description, a done/not-done
+ * status, and a {@link TaskType}. {@link Todo}, {@link Deadline}, and
+ * {@link Event} extend this with their own extra fields (e.g. a due
+ * date) and override {@link #toString()}, {@link #toSaveFormat()}, and
+ * {@link #occursOn(LocalDate)} as needed.
+ */
 public class Task {
     protected String description;
     protected boolean isDone;

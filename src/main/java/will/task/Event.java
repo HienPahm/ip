@@ -2,10 +2,18 @@ package will.task;
 
 import java.time.LocalDate;
 
+/** A task that happens over a time span, e.g. "project meeting from Mon 2pm to 4pm". */
 public class Event extends Task {
     protected FlexibleDate from;
     protected FlexibleDate to;
 
+    /**
+     * @param description What's happening.
+     * @param from When it starts. Recognized as a date if it matches
+     *             yyyy-MM-dd (see {@link FlexibleDate}), otherwise kept
+     *             as free text.
+     * @param to When it ends, parsed the same way as {@code from}.
+     */
     public Event(String description, String from, String to) {
         super(description, TaskType.EVENT);
         this.from = new FlexibleDate(from);

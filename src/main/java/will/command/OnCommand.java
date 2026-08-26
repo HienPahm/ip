@@ -5,8 +5,8 @@ import java.time.LocalDate;
 import will.Storage;
 import will.TaskList;
 import will.Ui;
-import will.task.Task;
 import will.task.FlexibleDate;
+import will.task.Task;
 
 /** The "on &lt;date&gt;" command: lists every task occurring on that date. */
 public class OnCommand extends Command {
