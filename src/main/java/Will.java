@@ -1,7 +1,15 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Will {
+    // Relative, OS-independent path (Paths.get joins with the right
+    // separator for whatever OS this runs on): ./data/will.txt
+    private static final Path DATA_FILE = Paths.get("data", "will.txt");
+
     public static void main(String[] args) {
         String logo = " __        _____ _     _     \n"
                 + " \\ \\      / /_ _| |   | |    \n"
@@ -37,18 +45,21 @@ public class Will {
                 } else if (command.equals("mark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsDone();
+                    saveTasks(tasks);
                     printMessage("Amazing Gangie! I've marked this task as done:");
                     printMessage("  " + tasks.get(index).toString());
                     printLine();
                 } else if (command.equals("unmark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsNotDone();
+                    saveTasks(tasks);
                     printMessage("OK, I've marked this task as not done yet:");
                     printMessage("  " + tasks.get(index).toString());
                     printLine();
                 } else if (command.equals("delete")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     Task removed = tasks.remove(index);
+                    saveTasks(tasks);
                     printMessage("Noted. I've removed this task:");
                     printMessage("  " + removed.toString());
                     printMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -58,6 +69,7 @@ public class Will {
                         throw new WillException("A todo needs a description! Try: todo <what you need to do>");
                     }
                     tasks.add(new Todo(rest));
+                    saveTasks(tasks);
                     printMessage("Got it. I've added this task:");
                     printMessage("  " + tasks.get(tasks.size() - 1).toString());
                     printMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -78,6 +90,7 @@ public class Will {
                                 + "Try: deadline <what you need to do> /by <when it's due>");
                     }
                     tasks.add(new Deadline(description, by));
+                    saveTasks(tasks);
                     printMessage("Got it. I've added this task:");
                     printMessage("  " + tasks.get(tasks.size() - 1).toString());
                     printMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -103,6 +116,7 @@ public class Will {
                                 + "Try: event <what's happening> /from <start> /to <end>");
                     }
                     tasks.add(new Event(description, from, to));
+                    saveTasks(tasks);
                     printMessage("Got it. I've added this task:");
                     printMessage("  " + tasks.get(tasks.size() - 1).toString());
                     printMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -139,6 +153,27 @@ public class Will {
                     + "You have " + taskCount + " task(s) in your list.");
         }
         return index;
+    }
+
+    /**
+     * Writes the current task list to disk, one task per line in
+     * Task#toSaveFormat(). Creates the ./data folder first if it doesn't
+     * exist yet, so this works on a fresh checkout where the folder has
+     * never been created. On failure, reports it as a WillException
+     * rather than crashing, so a save error is just another "OOPS!!!"
+     * message and the session keeps running.
+     */
+    private static void saveTasks(ArrayList<Task> tasks) throws WillException {
+        try {
+            Files.createDirectories(DATA_FILE.getParent());
+            StringBuilder content = new StringBuilder();
+            for (Task task : tasks) {
+                content.append(task.toSaveFormat()).append(System.lineSeparator());
+            }
+            Files.writeString(DATA_FILE, content.toString());
+        } catch (IOException e) {
+            throw new WillException("I couldn't save your tasks to disk: " + e.getMessage());
+        }
     }
 
     private static void printLine() {

@@ -19,6 +19,12 @@ line, and compare stdout against "Expected output" (both trimmed of
 trailing whitespace per line). Ignore anything the JVM/launcher prints to
 stderr (e.g. `JAVA_TOOL_OPTIONS` notices) — only stdout is checked.
 
+The program saves tasks to `./data/will.txt` (created automatically if
+the `data/` folder doesn't exist yet) after every command that changes
+the task list. Delete the `data/` folder before each test case that
+checks file content (see TC27), so a stale file from an earlier run
+can't make a broken save look like it passed.
+
 ## Test cases
 
 ### TC1 — Greet and exit
@@ -518,4 +524,53 @@ bye
     ____________________________________________________________
      Here are the tasks in your list:
      1.[T][ ] read book
+```
+
+## Persistence tests
+
+### TC27 — Tasks are saved to disk after every change
+
+**Aim:** `./data/will.txt` is created automatically (even if `data/`
+doesn't exist yet) and reflects the task list's current state — added
+tasks, a marked-done status, and a deletion — after each change.
+
+**Setup:** Delete the `data/` folder (if present) before running this
+test case, so it starts from "the folder doesn't exist yet".
+
+**Inputs:**
+```
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+mark 1
+delete 2
+bye
+```
+
+**Expected file content of `data/will.txt` after the session ends:**
+```
+T | 1 | read book
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+(Note: task 1 is `1` for done since it was marked; task 2, "return
+book", is gone since it was deleted; the surviving event's line has 5
+`|`-delimited fields: type, done flag, description, from, to.)
+
+### TC28 — A fresh checkout with no data folder still saves correctly
+
+**Aim:** The very first save on a machine that has never run the
+program before (no `data/` folder exists at all) must succeed rather
+than throwing because the parent folder is missing.
+
+**Setup:** Delete the `data/` folder (if present) before running.
+
+**Inputs:**
+```
+todo first run test
+bye
+```
+
+**Expected file content of `data/will.txt` after the session ends:**
+```
+T | 0 | first run test
 ```
