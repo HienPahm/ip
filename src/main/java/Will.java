@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Will {
@@ -21,9 +22,9 @@ public class Will {
         System.out.println(logo);
         printMessage("What's up!!! I'm Will.");
         printMessage("How may I assist you?");
-        printLine();
 
-        ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<Task> tasks = loadTasks();
+        printLine();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -174,6 +175,73 @@ public class Will {
         } catch (IOException e) {
             throw new WillException("I couldn't save your tasks to disk: " + e.getMessage());
         }
+    }
+
+    /**
+     * Loads the task list from disk at startup. If the data file doesn't
+     * exist yet (e.g. this is the first time the program has ever been
+     * run), returns an empty list rather than treating that as an error.
+     * A line that fails to parse is skipped with a warning instead of
+     * aborting the whole load, so one corrupted line doesn't cost the
+     * user every other saved task.
+     */
+    private static ArrayList<Task> loadTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
+        if (!Files.exists(DATA_FILE)) {
+            return tasks;
+        }
+        try {
+            List<String> lines = Files.readAllLines(DATA_FILE);
+            for (String line : lines) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                try {
+                    tasks.add(parseSavedTask(line));
+                } catch (WillException e) {
+                    printMessage("OOPS!!! Skipping a corrupted line in the data file: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            printMessage("OOPS!!! I couldn't load your saved tasks: " + e.getMessage());
+        }
+        return tasks;
+    }
+
+    /**
+     * Parses one line of the data file (Task#toSaveFormat()'s format)
+     * back into the matching Task subclass.
+     */
+    private static Task parseSavedTask(String line) throws WillException {
+        String[] parts = line.split("\\s*\\|\\s*");
+        if (parts.length < 3) {
+            throw new WillException("\"" + line + "\" doesn't have enough fields.");
+        }
+        String typeSymbol = parts[0];
+        boolean isDone = parts[1].equals("1");
+        String description = parts[2];
+
+        Task task;
+        if (typeSymbol.equals(TaskType.TODO.getSymbol())) {
+            task = new Todo(description);
+        } else if (typeSymbol.equals(TaskType.DEADLINE.getSymbol())) {
+            if (parts.length < 4) {
+                throw new WillException("\"" + line + "\" is missing its /by field.");
+            }
+            task = new Deadline(description, parts[3]);
+        } else if (typeSymbol.equals(TaskType.EVENT.getSymbol())) {
+            if (parts.length < 5) {
+                throw new WillException("\"" + line + "\" is missing its /from or /to field.");
+            }
+            task = new Event(description, parts[3], parts[4]);
+        } else {
+            throw new WillException("\"" + typeSymbol + "\" isn't a recognized task type.");
+        }
+
+        if (isDone) {
+            task.markAsDone();
+        }
+        return task;
     }
 
     private static void printLine() {

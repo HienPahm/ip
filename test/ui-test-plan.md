@@ -21,9 +21,11 @@ stderr (e.g. `JAVA_TOOL_OPTIONS` notices) — only stdout is checked.
 
 The program saves tasks to `./data/will.txt` (created automatically if
 the `data/` folder doesn't exist yet) after every command that changes
-the task list. Delete the `data/` folder before each test case that
-checks file content (see TC27), so a stale file from an earlier run
-can't make a broken save look like it passed.
+the task list, and loads it back at startup. Delete the `data/` folder
+before **every** test case, not just the ones that check file content
+— since startup now depends on it, a stale file left over from the
+previous test case would silently change a later test case's starting
+task count.
 
 ## Test cases
 
@@ -573,4 +575,63 @@ bye
 **Expected file content of `data/will.txt` after the session ends:**
 ```
 T | 0 | first run test
+```
+
+### TC29 — Tasks are loaded from disk at startup
+
+**Aim:** On startup, the program reads `data/will.txt` and populates the
+task list from it (preserving the done/not-done status), before any
+command is typed.
+
+**Setup:** Delete the `data/` folder, then create `data/will.txt` with
+this exact content before starting the program:
+```
+T | 1 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+**Inputs:**
+```
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][X] read book
+     2.[D][ ] return book (by: June 6th)
+     3.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+```
+
+### TC30 — Corrupted lines are skipped with a warning, valid ones still load
+
+**Aim:** A data file with some unreadable lines (unknown type tag, too
+few fields) doesn't stop the whole load — it reports each bad line and
+loads everything else.
+
+**Setup:** Delete the `data/` folder, then create `data/will.txt` with
+this exact content before starting the program:
+```
+T | 0 | valid todo
+X | 0 | bad type
+D | 1 | valid deadline | June 6th
+not even close to valid
+```
+
+**Inputs:**
+```
+list
+bye
+```
+
+**Expected output:**
+```
+     OOPS!!! Skipping a corrupted line in the data file: "X" isn't a recognized task type.
+     OOPS!!! Skipping a corrupted line in the data file: "not even close to valid" doesn't have enough fields.
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] valid todo
+     2.[D][X] valid deadline (by: June 6th)
 ```
