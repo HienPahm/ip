@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -49,6 +51,26 @@ public class Will {
                     printMessage("Here are the tasks in your list:");
                     for (int i = 0; i < tasks.size(); i++) {
                         printMessage((i + 1) + "." + tasks.get(i).toString());
+                    }
+                    printLine();
+                } else if (command.equals("on")) {
+                    if (rest.isEmpty()) {
+                        throw new WillException("Tell me which date! Try: on <yyyy-MM-dd>, e.g. on 2019-10-15");
+                    }
+                    LocalDate queryDate;
+                    try {
+                        queryDate = FlexibleDate.parseExact(rest);
+                    } catch (DateTimeParseException e) {
+                        throw new WillException("\"" + rest + "\" isn't a date in yyyy-MM-dd format. "
+                                + "Try: on <yyyy-MM-dd>, e.g. on 2019-10-15");
+                    }
+                    printMessage("Here are the tasks occurring on " + FlexibleDate.formatForDisplay(queryDate) + ":");
+                    int matchNumber = 0;
+                    for (Task task : tasks) {
+                        if (task.occursOn(queryDate)) {
+                            matchNumber++;
+                            printMessage(matchNumber + "." + task.toString());
+                        }
                     }
                     printLine();
                 } else if (command.equals("mark")) {
@@ -144,7 +166,7 @@ public class Will {
                     printLine();
                 } else {
                     throw new WillException("I don't recognize that command. "
-                            + "Try: todo, deadline, event, list, mark, unmark, delete, or bye.");
+                            + "Try: todo, deadline, event, list, on, mark, unmark, delete, or bye.");
                 }
             } catch (WillException e) {
                 printMessage("OOPS!!! " + e.getMessage());

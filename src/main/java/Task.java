@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 public class Task {
     protected String description;
     protected boolean isDone;
@@ -41,5 +43,14 @@ public class Task {
      */
     public String toSaveFormat() {
         return type.getSymbol() + " | " + (isDone ? "1" : "0") + " | " + description;
+    }
+
+    /**
+     * Whether this task should show up in an "on &lt;date&gt;" query for
+     * the given date. A plain Task/Todo has no date, so it never
+     * matches; Deadline and Event override this with their own logic.
+     */
+    public boolean occursOn(LocalDate date) {
+        return false;
     }
 }
