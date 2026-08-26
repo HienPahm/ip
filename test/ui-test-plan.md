@@ -254,7 +254,7 @@ bye
 
 **Expected output (error section only):**
 ```
-     OOPS!!! I don't recognize that command. Try: todo, deadline, event, list, on, mark, unmark, delete, or bye.
+     OOPS!!! I don't recognize that command. Try: todo, deadline, event, list, on, find, mark, unmark, delete, or bye.
 ```
 
 ### TC12 — mark with no task number
