@@ -1,7 +1,6 @@
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Will {
@@ -12,7 +11,7 @@ public class Will {
         // Relative, OS-independent path (Paths.get joins with the right
         // separator for whatever OS this runs on): ./data/will.txt
         Storage storage = new Storage(Paths.get("data", "will.txt"));
-        ArrayList<Task> tasks = storage.load(ui);
+        TaskList tasks = new TaskList(storage.load(ui));
         ui.showLine();
 
         Scanner scanner = new Scanner(System.in);
@@ -63,21 +62,21 @@ public class Will {
                 } else if (command.equals("mark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsDone();
-                    storage.save(tasks);
+                    storage.save(tasks.getTasks());
                     ui.showMessage("Amazing Gangie! I've marked this task as done:");
                     ui.showMessage("  " + tasks.get(index).toString());
                     ui.showLine();
                 } else if (command.equals("unmark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsNotDone();
-                    storage.save(tasks);
+                    storage.save(tasks.getTasks());
                     ui.showMessage("OK, I've marked this task as not done yet:");
                     ui.showMessage("  " + tasks.get(index).toString());
                     ui.showLine();
                 } else if (command.equals("delete")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     Task removed = tasks.remove(index);
-                    storage.save(tasks);
+                    storage.save(tasks.getTasks());
                     ui.showMessage("Noted. I've removed this task:");
                     ui.showMessage("  " + removed.toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -88,7 +87,7 @@ public class Will {
                     }
                     requireNoPipe(rest, "description");
                     tasks.add(new Todo(rest));
-                    storage.save(tasks);
+                    storage.save(tasks.getTasks());
                     ui.showMessage("Got it. I've added this task:");
                     ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -111,7 +110,7 @@ public class Will {
                     requireNoPipe(description, "description");
                     requireNoPipe(by, "/by time");
                     tasks.add(new Deadline(description, by));
-                    storage.save(tasks);
+                    storage.save(tasks.getTasks());
                     ui.showMessage("Got it. I've added this task:");
                     ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
@@ -146,7 +145,7 @@ public class Will {
                     requireNoPipe(from, "/from time");
                     requireNoPipe(to, "/to time");
                     tasks.add(new Event(description, from, to));
-                    storage.save(tasks);
+                    storage.save(tasks.getTasks());
                     ui.showMessage("Got it. I've added this task:");
                     ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
                     ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");

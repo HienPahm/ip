@@ -961,3 +961,8 @@ expects, that is a regression, not an intentional update.
   `Storage` class (`load(ui)` / `save(tasks)`). Re-ran TC1–TC43: 42/42
   automated cases passed, including the save/load cases (TC27–TC30) and
   the manually-verified round-trip case (TC39).
+- **Increment 3 (extract `TaskList`)** — wrapped the `ArrayList<Task>`
+  in a new `TaskList` class (`add`/`remove`/`get`/`size`, plus
+  `Iterable<Task>` so the existing `list`/`on <date>` for-each loops
+  keep working unchanged). `Will` now holds a `TaskList` instead of a
+  raw `ArrayList<Task>`. Re-ran TC1–TC43: 42/42 automated cases passed.
