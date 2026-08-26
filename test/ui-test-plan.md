@@ -1041,3 +1041,19 @@ are pure logic with no side effects and are easy to test well:
 `./gradlew test` (macOS/Linux). The manual black-box suite above
 (TC1–TC43) is unaffected and continues to be run separately, since it
 exercises the CLI end-to-end rather than individual methods.
+
+## A-Jar verification
+
+Packaging as a fat JAR needed no build.gradle changes: the shadowJar
+plugin, application plugin, and shadowJar { archiveFileName = 'will.jar' }
+were already wired up back in A-Gradle. /build/ is already in
+.gitignore, so the generated JAR is never committed (per the course's
+"do not commit the JAR" rule) — it is meant to be distributed via a
+GitHub release instead.
+
+- **Create the JAR**: `.\gradlew.bat shadowJar` (Windows) or
+  `./gradlew shadowJar` (macOS/Linux).
+- **Locate it**: `build\libs\will.jar`.
+- **Run it** (per the course's assumed usage — copy into an empty
+  folder, open a command window there, run from that folder):
+  `java -jar "will.jar"`.
