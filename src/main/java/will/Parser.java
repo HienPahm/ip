@@ -1,5 +1,20 @@
+package will;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+
+import will.command.AddCommand;
+import will.command.Command;
+import will.command.DeleteCommand;
+import will.command.ExitCommand;
+import will.command.ListCommand;
+import will.command.MarkCommand;
+import will.command.OnCommand;
+import will.command.UnmarkCommand;
+import will.task.Deadline;
+import will.task.Event;
+import will.task.FlexibleDate;
+import will.task.Todo;
 
 /**
  * Deals with making sense of the user command: turns one line of raw

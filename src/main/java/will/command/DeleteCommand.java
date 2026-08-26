@@ -1,3 +1,11 @@
+package will.command;
+
+import will.Storage;
+import will.TaskList;
+import will.Ui;
+import will.WillException;
+import will.task.Task;
+
 /** The "delete &lt;task number&gt;" command: removes a task from the list. */
 public class DeleteCommand extends Command {
     private final int index;

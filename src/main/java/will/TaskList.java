@@ -1,5 +1,9 @@
+package will;
+
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import will.task.Task;
 
 /**
  * Contains the task list, with operations to add, remove, and access

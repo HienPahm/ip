@@ -1,3 +1,5 @@
+package will;
+
 /**
  * Represents an error specific to the Will chatbot, e.g. an invalid or
  * incomplete command entered by the user.

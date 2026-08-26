@@ -1,4 +1,12 @@
+package will.command;
+
 import java.time.LocalDate;
+
+import will.Storage;
+import will.TaskList;
+import will.Ui;
+import will.task.Task;
+import will.task.FlexibleDate;
 
 /** The "on &lt;date&gt;" command: lists every task occurring on that date. */
 public class OnCommand extends Command {
