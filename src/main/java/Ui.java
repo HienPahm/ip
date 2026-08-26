@@ -1,8 +1,11 @@
+import java.util.Scanner;
+
 /**
  * Deals with all interactions with the user: the startup banner and
- * greeting, the goodbye message, and the framed message/line formatting
- * used throughout the program. Extracted out of {@link Will} so that
- * anything about "what we print and how" lives in one place.
+ * greeting, the goodbye message, reading commands, and the framed
+ * message/line formatting used throughout the program. Extracted out
+ * of {@link Will} so that anything about "how we talk to the user"
+ * lives in one place.
  */
 public class Ui {
     private static final String LOGO = " __        _____ _     _     \n"
@@ -10,6 +13,8 @@ public class Ui {
             + "  \\ \\ /\\ / / | || |   | |    \n"
             + "   \\ V  V /  | || |___| |___ \n"
             + "    \\_/\\_/  |___|_____|_____|\n";
+
+    private final Scanner scanner = new Scanner(System.in);
 
     /** Prints the startup banner followed by the greeting. */
     public void showWelcome() {
@@ -32,5 +37,25 @@ public class Ui {
     /** Prints a single indented message line inside the response frame. */
     public void showMessage(String message) {
         System.out.println("     " + message);
+    }
+
+    /** Prints an error message in the same "OOPS!!!" style used throughout. */
+    public void showError(String message) {
+        showMessage("OOPS!!! " + message);
+    }
+
+    /**
+     * Reads one line of command input, silently retrying on a blank
+     * (or whitespace-only) line instead of returning it as a command —
+     * a blank line isn't a typo worth an "OOPS!!!", it's just waiting
+     * for the next real line. Callers never need to special-case it.
+     */
+    public String readCommand() {
+        while (true) {
+            String input = scanner.nextLine().trim();
+            if (!input.isEmpty()) {
+                return input;
+            }
+        }
     }
 }

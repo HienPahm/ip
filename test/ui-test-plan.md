@@ -966,3 +966,16 @@ expects, that is a regression, not an intentional update.
   `Iterable<Task>` so the existing `list`/`on <date>` for-each loops
   keep working unchanged). `Will` now holds a `TaskList` instead of a
   raw `ArrayList<Task>`. Re-ran TC1–TC43: 42/42 automated cases passed.
+- **Increment 4 (Command hierarchy + `Parser`, stretch goal)** —
+  introduced an abstract `Command` class and one concrete subclass per
+  command (`ExitCommand`, `ListCommand`, `OnCommand`, `MarkCommand`,
+  `UnmarkCommand`, `DeleteCommand`, `AddCommand`), rewrote `Parser` to
+  turn raw input into a `Command` instead of executing it inline, and
+  rewrote `Will` around a `Ui`/`Storage`/`TaskList` constructor plus a
+  `run()` loop that just does `Parser.parse(...)` →
+  `command.execute(...)` → `isExit()`. First pass (loading in the
+  constructor before printing the welcome banner) failed TC30 by
+  printing a corrupted-line warning before the banner instead of after
+  it — caught immediately by this suite and fixed by greeting first,
+  then loading. Re-ran TC1–TC43 after the fix: 42/42 automated cases
+  passed, with zero output changes from before this increment.
