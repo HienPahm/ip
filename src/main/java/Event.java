@@ -1,20 +1,20 @@
 public class Event extends Task {
-    protected String from;
-    protected String to;
+    protected FlexibleDate from;
+    protected FlexibleDate to;
 
     public Event(String description, String from, String to) {
         super(description, TaskType.EVENT);
-        this.from = from;
-        this.to = to;
+        this.from = new FlexibleDate(from);
+        this.to = new FlexibleDate(to);
     }
 
     @Override
     public String toString() {
-        return super.toString() + " (from: " + from + " to: " + to + ")";
+        return super.toString() + " (from: " + from.toDisplayString() + " to: " + to.toDisplayString() + ")";
     }
 
     @Override
     public String toSaveFormat() {
-        return super.toSaveFormat() + " | " + from + " | " + to;
+        return super.toSaveFormat() + " | " + from.toSaveString() + " | " + to.toSaveString();
     }
 }

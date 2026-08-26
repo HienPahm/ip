@@ -1,18 +1,18 @@
 public class Deadline extends Task {
-    protected String by;
+    protected FlexibleDate by;
 
     public Deadline(String description, String by) {
         super(description, TaskType.DEADLINE);
-        this.by = by;
+        this.by = new FlexibleDate(by);
     }
 
     @Override
     public String toString() {
-        return super.toString() + " (by: " + by + ")";
+        return super.toString() + " (by: " + by.toDisplayString() + ")";
     }
 
     @Override
     public String toSaveFormat() {
-        return super.toSaveFormat() + " | " + by;
+        return super.toSaveFormat() + " | " + by.toSaveString();
     }
 }

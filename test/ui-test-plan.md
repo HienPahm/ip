@@ -761,3 +761,101 @@ bye
 ```
      OOPS!!! Sorry, the description can't contain a "|" character — try rephrasing without it.
 ```
+
+## Dates and times (Level 8)
+
+Deadline/event dates are stored as a `java.time.LocalDate` when the
+`/by`, `/from`, or `/to` value matches `yyyy-MM-dd` (e.g. `2019-10-15`),
+and displayed as `MMM dd yyyy` (e.g. `Oct 15 2019`). A value that
+doesn't match that format (e.g. `Sunday`, `no idea :-p`) is kept as
+plain text and displayed unchanged — this is a deliberate fallback, not
+a bug, so free-text dates from earlier test cases keep working.
+
+### TC36 — A yyyy-MM-dd deadline date is parsed and reformatted
+
+**Aim:** `deadline <description> /by 2019-10-15` is understood as an
+actual date and displayed as `Oct 15 2019`, not echoed back verbatim.
+
+**Inputs:**
+```
+deadline return book /by 2019-10-15
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[D][ ] return book (by: Oct 15 2019)
+```
+
+### TC37 — yyyy-MM-dd event dates are parsed and reformatted (both /from and /to)
+
+**Aim:** Both the `/from` and `/to` values of an event are independently
+checked against `yyyy-MM-dd` and reformatted if they match.
+
+**Inputs:**
+```
+event project meeting /from 2019-08-06 /to 2019-08-07
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[E][ ] project meeting (from: Aug 06 2019 to: Aug 07 2019)
+```
+
+### TC38 — Free-text dates still work (no regression from the date feature)
+
+**Aim:** A `/by`/`/from`/`/to` value that isn't in `yyyy-MM-dd` format
+is kept and displayed as plain text, exactly like before dates were
+added — this must NOT become an error.
+
+**Inputs:**
+```
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[D][ ] return book (by: June 6th)
+     2.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+```
+
+### TC39 — A saved LocalDate round-trips correctly through save/load
+
+**Aim:** A deadline saved with a recognized date is written to disk in
+`yyyy-MM-dd` form (not the display form) and, when reloaded, is still
+recognized as a date and displayed the same way — not permanently
+downgraded to plain text after a restart.
+
+**Setup:** Delete the `data/` folder before running.
+
+**Inputs (first session):**
+```
+deadline return book /by 2019-10-15
+bye
+```
+
+**Expected file content of `data/will.txt` after the first session:**
+```
+D | 0 | return book | 2019-10-15
+```
+
+**Inputs (second session, same data file):**
+```
+list
+bye
+```
+
+**Expected output (list section only) of the second session:**
+```
+     Here are the tasks in your list:
+     1.[D][ ] return book (by: Oct 15 2019)
+```
