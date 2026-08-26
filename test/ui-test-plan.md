@@ -27,6 +27,20 @@ before **every** test case, not just the ones that check file content
 previous test case would silently change a later test case's starting
 task count.
 
+**Verified requirements (course file-path guidance):**
+* The data file path is relative and OS-independent — `DATA_FILE` is
+  built with `java.nio.file.Paths.get("data", "will.txt")` rather than
+  a hardcoded absolute path or a manually concatenated `/`/`\`, so it
+  resolves correctly on Windows, macOS, and Linux.
+* A missing `data/` folder or `data/will.txt` file at startup is
+  handled, not just deferred: `loadTasks()` checks `Files.exists()`
+  and returns an empty list rather than erroring, and `saveTasks()`
+  calls `Files.createDirectories()` before writing so the very first
+  save on a fresh checkout succeeds. Re-confirmed by manually deleting
+  `data/` entirely and running both a `list` (no crash on missing
+  file) and a `todo` (folder + file created on demand); TC28 covers
+  the fresh-checkout save case as an automated test case.
+
 ## Test cases
 
 ### TC1 — Greet and exit
