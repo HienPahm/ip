@@ -1011,3 +1011,33 @@ pass unchanged.
 Re-ran TC1–TC43 after the move (and after updating the build/run
 commands above for the new package layout): 42/42 automated cases
 passed, with zero output changes.
+
+## A-JUnit verification
+
+Added JUnit 5 tests under `src/test/java`, mirroring the package path
+of the class under test (e.g. `will.task.FlexibleDate` is tested by
+`will.task.FlexibleDateTest` at
+`src/test/java/will/task/FlexibleDateTest.java`), following the
+`featureUnderTest_testScenario_expectedBehavior()` naming convention.
+
+Minimal target was two non-trivial methods from two different
+classes. Chosen instead to cover two classes thoroughly, since both
+are pure logic with no side effects and are easy to test well:
+
+- **`FlexibleDateTest`** (9 tests) — `toDisplayString()`,
+  `toSaveString()`, `getDate()`, `parseExact(String)`, and
+  `formatForDisplay(LocalDate)`, each covering both the
+  recognized-`yyyy-MM-dd` path and the free-text fallback path.
+- **`TaskTest`** (8 tests, via `Todo`) — `toString()`,
+  `toSaveFormat()`, `occursOn(LocalDate)`, `getDescription()`, and
+  `getType()`, including the `markAsDone()`/`markAsNotDone()`
+  transitions.
+- **`DeadlineTest`** (6 tests) — the `Deadline` overrides of
+  `toString()`, `toSaveFormat()`, and `occursOn(LocalDate)`, covering
+  both the recognized-date and free-text `by` field, and both the
+  matching and non-matching `occursOn` cases.
+
+23 tests total, run via `.\gradlew.bat test` (Windows) or
+`./gradlew test` (macOS/Linux). The manual black-box suite above
+(TC1–TC43) is unaffected and continues to be run separately, since it
+exercises the CLI end-to-end rather than individual methods.
