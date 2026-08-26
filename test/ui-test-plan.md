@@ -635,3 +635,115 @@ bye
      1.[T][ ] valid todo
      2.[D][X] valid deadline (by: June 6th)
 ```
+
+## Robustness / edge-case tests (parsing and data integrity)
+
+### TC31 — Leading whitespace on the command line doesn't break parsing
+
+**Aim:** A line like `"   todo read book"` (leading spaces before the
+command) must still be recognized as `todo`, not as an empty/unknown
+command. Before this fix, `input.split(" ", 2)[0]` on a string with
+leading spaces produced an empty first token.
+
+**Inputs:**
+```
+   todo read book
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][ ] read book
+```
+
+### TC32 — Blank lines are silently ignored, not treated as errors
+
+**Aim:** Pressing Enter with nothing typed (or only whitespace) should
+not produce an "OOPS!!!" — the program should just wait for the next
+line.
+
+**Inputs:**
+```
+
+   
+todo x
+bye
+```
+
+**Expected output:**
+```
+    ____________________________________________________________
+ __        _____ _     _
+ \ \      / /_ _| |   | |
+  \ \ /\ / / | || |   | |
+   \ V  V /  | || |___| |___
+    \_/\_/  |___|_____|_____|
+
+     What's up!!! I'm Will.
+     How may I assist you?
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] x
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+     Seee yaaaa! Meet again soon!
+    ____________________________________________________________
+```
+(Note: no `OOPS!!!` line appears for the two blank inputs before `todo x`.)
+
+### TC33 — Commands are case-insensitive
+
+**Aim:** `TODO`, `LiSt`, `BYE`, etc. should all work the same as their
+lowercase form — only the command word's case is normalized, not the
+description text itself.
+
+**Inputs:**
+```
+TODO read book
+LiSt
+BYE
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][ ] read book
+```
+
+### TC34 — Event with /to before /from is rejected, not a crash
+
+**Aim:** Before this fix, `/to` appearing before `/from` in the input
+caused a `StringIndexOutOfBoundsException` (an unhandled crash) because
+the code assumed `/from` always comes first when slicing substrings.
+Now it must be caught and reported as a normal `WillException`.
+
+**Inputs:**
+```
+event meeting /to 5pm /from 3pm
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Your /from time needs to come before /to! Try: event <what's happening> /from <start> /to <end>
+```
+
+### TC35 — A "|" character in a description is rejected, not silently corrupted
+
+**Aim:** The save file format is pipe-delimited (`T | 0 | description`).
+Before this fix, a description containing `|` would be written to disk
+in a way that misparses into extra fields on the next load. It must
+now be rejected up front with a clear error instead.
+
+**Inputs:**
+```
+todo buy milk | bread
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Sorry, the description can't contain a "|" character — try rephrasing without it.
+```

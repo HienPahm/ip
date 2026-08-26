@@ -28,8 +28,16 @@ public class Will {
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            String input = scanner.nextLine();
-            String command = input.split(" ", 2)[0];
+            // Trim the whole line first: without this, a line with leading
+            // whitespace (e.g. " todo book") would split into an empty
+            // first token and every command would look unrecognized.
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                // A blank line (or one that's only whitespace) isn't a
+                // typo worth an "OOPS!!!" — just wait for the next line.
+                continue;
+            }
+            String command = input.split(" ", 2)[0].toLowerCase();
             String rest = input.length() > command.length() ? input.substring(command.length()).trim() : "";
 
             try {
@@ -69,6 +77,7 @@ public class Will {
                     if (rest.isEmpty()) {
                         throw new WillException("A todo needs a description! Try: todo <what you need to do>");
                     }
+                    requireNoPipe(rest, "description");
                     tasks.add(new Todo(rest));
                     saveTasks(tasks);
                     printMessage("Got it. I've added this task:");
@@ -90,6 +99,8 @@ public class Will {
                         throw new WillException("Tell me when this deadline is due! "
                                 + "Try: deadline <what you need to do> /by <when it's due>");
                     }
+                    requireNoPipe(description, "description");
+                    requireNoPipe(by, "/by time");
                     tasks.add(new Deadline(description, by));
                     saveTasks(tasks);
                     printMessage("Got it. I've added this task:");
@@ -101,9 +112,15 @@ public class Will {
                         throw new WillException("An event needs a description, a /from time and a /to time! "
                                 + "Try: event <what's happening> /from <start> /to <end>");
                     }
-                    String description = rest.substring(0, rest.indexOf("/from")).trim();
-                    String from = rest.substring(rest.indexOf("/from") + 5, rest.indexOf("/to")).trim();
-                    String to = rest.substring(rest.indexOf("/to") + 3).trim();
+                    int fromIndex = rest.indexOf("/from");
+                    int toIndex = rest.indexOf("/to");
+                    if (fromIndex > toIndex) {
+                        throw new WillException("Your /from time needs to come before /to! "
+                                + "Try: event <what's happening> /from <start> /to <end>");
+                    }
+                    String description = rest.substring(0, fromIndex).trim();
+                    String from = rest.substring(fromIndex + 5, toIndex).trim();
+                    String to = rest.substring(toIndex + 3).trim();
                     if (description.isEmpty()) {
                         throw new WillException("An event needs a description before /from! "
                                 + "Try: event <what's happening> /from <start> /to <end>");
@@ -116,6 +133,9 @@ public class Will {
                         throw new WillException("Tell me when this event ends! "
                                 + "Try: event <what's happening> /from <start> /to <end>");
                     }
+                    requireNoPipe(description, "description");
+                    requireNoPipe(from, "/from time");
+                    requireNoPipe(to, "/to time");
                     tasks.add(new Event(description, from, to));
                     saveTasks(tasks);
                     printMessage("Got it. I've added this task:");
@@ -154,6 +174,20 @@ public class Will {
                     + "You have " + taskCount + " task(s) in your list.");
         }
         return index;
+    }
+
+    /**
+     * The save file format is pipe-delimited, so a "|" typed into a
+     * description/by/from/to field would silently corrupt it (it'd be
+     * misread as an extra field on the next load). Reject it up front
+     * with a clear message instead of accepting input we can't save
+     * correctly.
+     */
+    private static void requireNoPipe(String field, String label) throws WillException {
+        if (field.contains("|")) {
+            throw new WillException("Sorry, the " + label + " can't contain a \"|\" character — "
+                    + "try rephrasing without it.");
+        }
     }
 
     /**
@@ -218,19 +252,25 @@ public class Will {
             throw new WillException("\"" + line + "\" doesn't have enough fields.");
         }
         String typeSymbol = parts[0];
+        if (!parts[1].equals("0") && !parts[1].equals("1")) {
+            throw new WillException("\"" + line + "\" has an invalid done flag (expected 0 or 1).");
+        }
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
+        if (description.isBlank()) {
+            throw new WillException("\"" + line + "\" has an empty description.");
+        }
 
         Task task;
         if (typeSymbol.equals(TaskType.TODO.getSymbol())) {
             task = new Todo(description);
         } else if (typeSymbol.equals(TaskType.DEADLINE.getSymbol())) {
-            if (parts.length < 4) {
+            if (parts.length < 4 || parts[3].isBlank()) {
                 throw new WillException("\"" + line + "\" is missing its /by field.");
             }
             task = new Deadline(description, parts[3]);
         } else if (typeSymbol.equals(TaskType.EVENT.getSymbol())) {
-            if (parts.length < 5) {
+            if (parts.length < 5 || parts[3].isBlank() || parts[4].isBlank()) {
                 throw new WillException("\"" + line + "\" is missing its /from or /to field.");
             }
             task = new Event(description, parts[3], parts[4]);
