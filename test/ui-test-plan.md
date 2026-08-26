@@ -941,3 +941,41 @@ bye
 ```
      OOPS!!! Tell me which date! Try: on <yyyy-MM-dd>, e.g. on 2019-10-15
 ```
+
+## A-MoreOOP refactor verification
+
+Extracting `Ui`, `Storage`, `Parser`, and `TaskList` out of `Will` is a pure
+refactor: it must not change anything a user can observe on stdin/stdout. No
+new test cases are added for a refactor increment — instead, the full
+existing suite above (TC1–TC43) is re-run after each increment and must
+still pass unchanged. If an increment changes what any of these test cases
+expects, that is a regression, not an intentional update.
+
+- **Increment 1 (extract `Ui`)** — moved the startup banner/greeting, the
+  goodbye message, and the `showLine`/`showMessage` framing helpers out of
+  `Will` into a new `Ui` class. Re-ran TC1–TC43: 42/42 automated cases
+  passed (TC39 remains the one manually-verified case, unaffected by this
+  change since it doesn't touch save/load or dates).
+- **Increment 2 (extract `Storage`)** — moved `loadTasks`/`saveTasks`/
+  `parseSavedTask` and the save-file path out of `Will` into a new
+  `Storage` class (`load(ui)` / `save(tasks)`). Re-ran TC1–TC43: 42/42
+  automated cases passed, including the save/load cases (TC27–TC30) and
+  the manually-verified round-trip case (TC39).
+- **Increment 3 (extract `TaskList`)** — wrapped the `ArrayList<Task>`
+  in a new `TaskList` class (`add`/`remove`/`get`/`size`, plus
+  `Iterable<Task>` so the existing `list`/`on <date>` for-each loops
+  keep working unchanged). `Will` now holds a `TaskList` instead of a
+  raw `ArrayList<Task>`. Re-ran TC1–TC43: 42/42 automated cases passed.
+- **Increment 4 (Command hierarchy + `Parser`, stretch goal)** —
+  introduced an abstract `Command` class and one concrete subclass per
+  command (`ExitCommand`, `ListCommand`, `OnCommand`, `MarkCommand`,
+  `UnmarkCommand`, `DeleteCommand`, `AddCommand`), rewrote `Parser` to
+  turn raw input into a `Command` instead of executing it inline, and
+  rewrote `Will` around a `Ui`/`Storage`/`TaskList` constructor plus a
+  `run()` loop that just does `Parser.parse(...)` →
+  `command.execute(...)` → `isExit()`. First pass (loading in the
+  constructor before printing the welcome banner) failed TC30 by
+  printing a corrupted-line warning before the banner instead of after
+  it — caught immediately by this suite and fixed by greeting first,
+  then loading. Re-ran TC1–TC43 after the fix: 42/42 automated cases
+  passed, with zero output changes from before this increment.
