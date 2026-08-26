@@ -19,6 +19,28 @@ line, and compare stdout against "Expected output" (both trimmed of
 trailing whitespace per line). Ignore anything the JVM/launcher prints to
 stderr (e.g. `JAVA_TOOL_OPTIONS` notices) — only stdout is checked.
 
+The program saves tasks to `./data/will.txt` (created automatically if
+the `data/` folder doesn't exist yet) after every command that changes
+the task list, and loads it back at startup. Delete the `data/` folder
+before **every** test case, not just the ones that check file content
+— since startup now depends on it, a stale file left over from the
+previous test case would silently change a later test case's starting
+task count.
+
+**Verified requirements (course file-path guidance):**
+* The data file path is relative and OS-independent — `DATA_FILE` is
+  built with `java.nio.file.Paths.get("data", "will.txt")` rather than
+  a hardcoded absolute path or a manually concatenated `/`/`\`, so it
+  resolves correctly on Windows, macOS, and Linux.
+* A missing `data/` folder or `data/will.txt` file at startup is
+  handled, not just deferred: `loadTasks()` checks `Files.exists()`
+  and returns an empty list rather than erroring, and `saveTasks()`
+  calls `Files.createDirectories()` before writing so the very first
+  save on a fresh checkout succeeds. Re-confirmed by manually deleting
+  `data/` entirely and running both a `list` (no crash on missing
+  file) and a `todo` (folder + file created on demand); TC28 covers
+  the fresh-checkout save case as an automated test case.
+
 ## Test cases
 
 ### TC1 — Greet and exit
@@ -518,4 +540,224 @@ bye
     ____________________________________________________________
      Here are the tasks in your list:
      1.[T][ ] read book
+```
+
+## Persistence tests
+
+### TC27 — Tasks are saved to disk after every change
+
+**Aim:** `./data/will.txt` is created automatically (even if `data/`
+doesn't exist yet) and reflects the task list's current state — added
+tasks, a marked-done status, and a deletion — after each change.
+
+**Setup:** Delete the `data/` folder (if present) before running this
+test case, so it starts from "the folder doesn't exist yet".
+
+**Inputs:**
+```
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+mark 1
+delete 2
+bye
+```
+
+**Expected file content of `data/will.txt` after the session ends:**
+```
+T | 1 | read book
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+(Note: task 1 is `1` for done since it was marked; task 2, "return
+book", is gone since it was deleted; the surviving event's line has 5
+`|`-delimited fields: type, done flag, description, from, to.)
+
+### TC28 — A fresh checkout with no data folder still saves correctly
+
+**Aim:** The very first save on a machine that has never run the
+program before (no `data/` folder exists at all) must succeed rather
+than throwing because the parent folder is missing.
+
+**Setup:** Delete the `data/` folder (if present) before running.
+
+**Inputs:**
+```
+todo first run test
+bye
+```
+
+**Expected file content of `data/will.txt` after the session ends:**
+```
+T | 0 | first run test
+```
+
+### TC29 — Tasks are loaded from disk at startup
+
+**Aim:** On startup, the program reads `data/will.txt` and populates the
+task list from it (preserving the done/not-done status), before any
+command is typed.
+
+**Setup:** Delete the `data/` folder, then create `data/will.txt` with
+this exact content before starting the program:
+```
+T | 1 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+**Inputs:**
+```
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][X] read book
+     2.[D][ ] return book (by: June 6th)
+     3.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+```
+
+### TC30 — Corrupted lines are skipped with a warning, valid ones still load
+
+**Aim:** A data file with some unreadable lines (unknown type tag, too
+few fields) doesn't stop the whole load — it reports each bad line and
+loads everything else.
+
+**Setup:** Delete the `data/` folder, then create `data/will.txt` with
+this exact content before starting the program:
+```
+T | 0 | valid todo
+X | 0 | bad type
+D | 1 | valid deadline | June 6th
+not even close to valid
+```
+
+**Inputs:**
+```
+list
+bye
+```
+
+**Expected output:**
+```
+     OOPS!!! Skipping a corrupted line in the data file: "X" isn't a recognized task type.
+     OOPS!!! Skipping a corrupted line in the data file: "not even close to valid" doesn't have enough fields.
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] valid todo
+     2.[D][X] valid deadline (by: June 6th)
+```
+
+## Robustness / edge-case tests (parsing and data integrity)
+
+### TC31 — Leading whitespace on the command line doesn't break parsing
+
+**Aim:** A line like `"   todo read book"` (leading spaces before the
+command) must still be recognized as `todo`, not as an empty/unknown
+command. Before this fix, `input.split(" ", 2)[0]` on a string with
+leading spaces produced an empty first token.
+
+**Inputs:**
+```
+   todo read book
+list
+bye
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][ ] read book
+```
+
+### TC32 — Blank lines are silently ignored, not treated as errors
+
+**Aim:** Pressing Enter with nothing typed (or only whitespace) should
+not produce an "OOPS!!!" — the program should just wait for the next
+line.
+
+**Inputs:**
+```
+
+   
+todo x
+bye
+```
+
+**Expected output:**
+```
+    ____________________________________________________________
+ __        _____ _     _
+ \ \      / /_ _| |   | |
+  \ \ /\ / / | || |   | |
+   \ V  V /  | || |___| |___
+    \_/\_/  |___|_____|_____|
+
+     What's up!!! I'm Will.
+     How may I assist you?
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] x
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+     Seee yaaaa! Meet again soon!
+    ____________________________________________________________
+```
+(Note: no `OOPS!!!` line appears for the two blank inputs before `todo x`.)
+
+### TC33 — Commands are case-insensitive
+
+**Aim:** `TODO`, `LiSt`, `BYE`, etc. should all work the same as their
+lowercase form — only the command word's case is normalized, not the
+description text itself.
+
+**Inputs:**
+```
+TODO read book
+LiSt
+BYE
+```
+
+**Expected output (list section only):**
+```
+     Here are the tasks in your list:
+     1.[T][ ] read book
+```
+
+### TC34 — Event with /to before /from is rejected, not a crash
+
+**Aim:** Before this fix, `/to` appearing before `/from` in the input
+caused a `StringIndexOutOfBoundsException` (an unhandled crash) because
+the code assumed `/from` always comes first when slicing substrings.
+Now it must be caught and reported as a normal `WillException`.
+
+**Inputs:**
+```
+event meeting /to 5pm /from 3pm
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Your /from time needs to come before /to! Try: event <what's happening> /from <start> /to <end>
+```
+
+### TC35 — A "|" character in a description is rejected, not silently corrupted
+
+**Aim:** The save file format is pipe-delimited (`T | 0 | description`).
+Before this fix, a description containing `|` would be written to disk
+in a way that misparses into extra fields on the next load. It must
+now be rejected up front with a clear error instead.
+
+**Inputs:**
+```
+todo buy milk | bread
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Sorry, the description can't contain a "|" character — try rephrasing without it.
 ```

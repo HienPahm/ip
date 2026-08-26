@@ -33,4 +33,13 @@ public class Task {
     public String toString() {
         return "[" + type.getSymbol() + "][" + getStatusIcon() + "] " + description;
     }
+
+    /**
+     * Serializes this task to a single pipe-delimited line for storage on
+     * disk, e.g. "T | 1 | read book". Subclasses append their own extra
+     * fields after calling super.toSaveFormat().
+     */
+    public String toSaveFormat() {
+        return type.getSymbol() + " | " + (isDone ? "1" : "0") + " | " + description;
+    }
 }
