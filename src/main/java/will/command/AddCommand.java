@@ -1,3 +1,11 @@
+package will.command;
+
+import will.Storage;
+import will.TaskList;
+import will.Ui;
+import will.WillException;
+import will.task.Task;
+
 /**
  * The "todo"/"deadline"/"event" commands: adds an already-constructed
  * Task to the list. One AddCommand class serves all three task types,

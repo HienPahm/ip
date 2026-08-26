@@ -9,9 +9,20 @@ program exits cleanly.
 
 ## How to run the program
 
+Classes now live under packages (`will`, `will.task`, `will.command`),
+so the build command needs to pick up every `.java` file recursively
+instead of a flat `src/main/java/*.java` wildcard.
+
+PowerShell (Windows):
 ```
-javac -d out src/main/java/*.java
-java -cp out Will
+javac -d out (Get-ChildItem -Path src\main\java -Filter *.java -Recurse).FullName
+java -cp out will.Will
+```
+
+macOS/Linux (bash):
+```
+javac -d out $(find src/main/java -name "*.java")
+java -cp out will.Will
 ```
 
 Feed the "Inputs" of a test case to the program's stdin, one command per
@@ -979,3 +990,24 @@ expects, that is a regression, not an intentional update.
   it — caught immediately by this suite and fixed by greeting first,
   then loading. Re-ran TC1–TC43 after the fix: 42/42 automated cases
   passed, with zero output changes from before this increment.
+
+## A-Packages verification
+
+Organizing classes into packages is a pure move: no class's logic
+changes, only its `package` declaration and the imports needed to
+reach classes now in a different package. As with A-MoreOOP, no new
+test cases are added — the existing suite is re-run and must still
+pass unchanged.
+
+- **`will`** (root) — `Will`, `Ui`, `Storage`, `Parser`, `TaskList`,
+  `WillException`: the "wiring" classes, each talking to several of
+  the others.
+- **`will.task`** — `Task`, `TaskType`, `Todo`, `Deadline`, `Event`,
+  `FlexibleDate`: what a task is.
+- **`will.command`** — `Command`, `ExitCommand`, `ListCommand`,
+  `OnCommand`, `MarkCommand`, `UnmarkCommand`, `DeleteCommand`,
+  `AddCommand`: what a command does.
+
+Re-ran TC1–TC43 after the move (and after updating the build/run
+commands above for the new package layout): 42/42 automated cases
+passed, with zero output changes.

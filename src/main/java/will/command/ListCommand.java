@@ -1,3 +1,9 @@
+package will.command;
+
+import will.Storage;
+import will.TaskList;
+import will.Ui;
+
 /** The "list" command: prints every task currently in the list. */
 public class ListCommand extends Command {
     @Override

@@ -1,3 +1,10 @@
+package will.command;
+
+import will.Storage;
+import will.TaskList;
+import will.Ui;
+import will.WillException;
+
 /**
  * A single user command, parsed out of raw input by {@link Parser}.
  * Each concrete subclass knows how to carry out exactly one kind of

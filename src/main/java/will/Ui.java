@@ -1,3 +1,5 @@
+package will;
+
 import java.util.Scanner;
 
 /**

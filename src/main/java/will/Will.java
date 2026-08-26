@@ -1,4 +1,8 @@
+package will;
+
 import java.nio.file.Paths;
+
+import will.command.Command;
 
 /**
  * The Will chatbot. Wires together Ui, Storage, TaskList, Parser, and

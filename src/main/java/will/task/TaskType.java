@@ -1,3 +1,5 @@
+package will.task;
+
 /**
  * The kind of a {@link Task}, along with the single-letter tag used to
  * display it (e.g. "[T]" for a Todo).
