@@ -14,6 +14,12 @@ public class Will {
     private final Storage storage;
     private final TaskList tasks;
 
+    /**
+     * Sets up Ui/Storage/TaskList, greets the user, then loads any
+     * previously saved tasks.
+     *
+     * @param filePath Where the task list is loaded from and saved to.
+     */
     public Will(String filePath) {
         ui = new Ui();
         // Paths.get joins with the right separator for whatever OS this
@@ -26,6 +32,7 @@ public class Will {
         ui.showLine();
     }
 
+    /** Reads commands and executes them, one at a time, until "bye". */
     public void run() {
         boolean isExit = false;
         while (!isExit) {
@@ -42,6 +49,7 @@ public class Will {
         }
     }
 
+    /** Starts the chatbot, saving/loading tasks from data/will.txt. */
     public static void main(String[] args) {
         new Will("data/will.txt").run();
     }

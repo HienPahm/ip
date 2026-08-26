@@ -10,6 +10,7 @@ import will.task.Task;
 public class DeleteCommand extends Command {
     private final int index;
 
+    /** @param index Zero-based index of the task to delete. */
     public DeleteCommand(int index) {
         this.index = index;
     }

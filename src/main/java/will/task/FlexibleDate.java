@@ -21,6 +21,7 @@ public class FlexibleDate {
     private final LocalDate date;
     private final String text;
 
+    /** @param value The raw text to interpret, e.g. "2019-10-15" or "Sunday". */
     public FlexibleDate(String value) {
         LocalDate parsed;
         try {

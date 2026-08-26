@@ -27,18 +27,22 @@ public class TaskList implements Iterable<Task> {
         this.tasks = tasks;
     }
 
+    /** Adds a task to the end of the list. */
     public void add(Task task) {
         tasks.add(task);
     }
 
+    /** Removes and returns the task at the given index. */
     public Task remove(int index) {
         return tasks.remove(index);
     }
 
+    /** @return The task at the given index. */
     public Task get(int index) {
         return tasks.get(index);
     }
 
+    /** @return How many tasks are in the list. */
     public int size() {
         return tasks.size();
     }
@@ -51,6 +55,7 @@ public class TaskList implements Iterable<Task> {
         return tasks;
     }
 
+    /** @return An iterator over the tasks, in list order. */
     @Override
     public Iterator<Task> iterator() {
         return tasks.iterator();

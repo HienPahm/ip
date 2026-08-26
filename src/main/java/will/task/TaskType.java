@@ -15,6 +15,7 @@ public enum TaskType {
         this.symbol = symbol;
     }
 
+    /** @return The single-letter tag used to display this type, e.g. "T". */
     public String getSymbol() {
         return symbol;
     }

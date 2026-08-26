@@ -15,6 +15,7 @@ import will.task.Task;
 public class AddCommand extends Command {
     private final Task task;
 
+    /** @param task The already-constructed task to add. */
     public AddCommand(Task task) {
         this.task = task;
     }
