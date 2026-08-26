@@ -941,3 +941,18 @@ bye
 ```
      OOPS!!! Tell me which date! Try: on <yyyy-MM-dd>, e.g. on 2019-10-15
 ```
+
+## A-MoreOOP refactor verification
+
+Extracting `Ui`, `Storage`, `Parser`, and `TaskList` out of `Will` is a pure
+refactor: it must not change anything a user can observe on stdin/stdout. No
+new test cases are added for a refactor increment — instead, the full
+existing suite above (TC1–TC43) is re-run after each increment and must
+still pass unchanged. If an increment changes what any of these test cases
+expects, that is a regression, not an intentional update.
+
+- **Increment 1 (extract `Ui`)** — moved the startup banner/greeting, the
+  goodbye message, and the `showLine`/`showMessage` framing helpers out of
+  `Will` into a new `Ui` class. Re-ran TC1–TC43: 42/42 automated cases
+  passed (TC39 remains the one manually-verified case, unaffected by this
+  change since it doesn't touch save/load or dates).

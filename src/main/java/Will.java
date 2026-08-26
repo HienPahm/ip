@@ -14,19 +14,11 @@ public class Will {
     private static final Path DATA_FILE = Paths.get("data", "will.txt");
 
     public static void main(String[] args) {
-        String logo = " __        _____ _     _     \n"
-                + " \\ \\      / /_ _| |   | |    \n"
-                + "  \\ \\ /\\ / / | || |   | |    \n"
-                + "   \\ V  V /  | || |___| |___ \n"
-                + "    \\_/\\_/  |___|_____|_____|\n";
+        Ui ui = new Ui();
+        ui.showWelcome();
 
-        printLine();
-        System.out.println(logo);
-        printMessage("What's up!!! I'm Will.");
-        printMessage("How may I assist you?");
-
-        ArrayList<Task> tasks = loadTasks();
-        printLine();
+        ArrayList<Task> tasks = loadTasks(ui);
+        ui.showLine();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -44,15 +36,15 @@ public class Will {
 
             try {
                 if (command.equals("bye")) {
-                    printMessage("Seee yaaaa! Meet again soon!");
-                    printLine();
+                    ui.showGoodbye();
+                    ui.showLine();
                     break;
                 } else if (command.equals("list")) {
-                    printMessage("Here are the tasks in your list:");
+                    ui.showMessage("Here are the tasks in your list:");
                     for (int i = 0; i < tasks.size(); i++) {
-                        printMessage((i + 1) + "." + tasks.get(i).toString());
+                        ui.showMessage((i + 1) + "." + tasks.get(i).toString());
                     }
-                    printLine();
+                    ui.showLine();
                 } else if (command.equals("on")) {
                     if (rest.isEmpty()) {
                         throw new WillException("Tell me which date! Try: on <yyyy-MM-dd>, e.g. on 2019-10-15");
@@ -64,37 +56,37 @@ public class Will {
                         throw new WillException("\"" + rest + "\" isn't a date in yyyy-MM-dd format. "
                                 + "Try: on <yyyy-MM-dd>, e.g. on 2019-10-15");
                     }
-                    printMessage("Here are the tasks occurring on " + FlexibleDate.formatForDisplay(queryDate) + ":");
+                    ui.showMessage("Here are the tasks occurring on " + FlexibleDate.formatForDisplay(queryDate) + ":");
                     int matchNumber = 0;
                     for (Task task : tasks) {
                         if (task.occursOn(queryDate)) {
                             matchNumber++;
-                            printMessage(matchNumber + "." + task.toString());
+                            ui.showMessage(matchNumber + "." + task.toString());
                         }
                     }
-                    printLine();
+                    ui.showLine();
                 } else if (command.equals("mark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsDone();
                     saveTasks(tasks);
-                    printMessage("Amazing Gangie! I've marked this task as done:");
-                    printMessage("  " + tasks.get(index).toString());
-                    printLine();
+                    ui.showMessage("Amazing Gangie! I've marked this task as done:");
+                    ui.showMessage("  " + tasks.get(index).toString());
+                    ui.showLine();
                 } else if (command.equals("unmark")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     tasks.get(index).markAsNotDone();
                     saveTasks(tasks);
-                    printMessage("OK, I've marked this task as not done yet:");
-                    printMessage("  " + tasks.get(index).toString());
-                    printLine();
+                    ui.showMessage("OK, I've marked this task as not done yet:");
+                    ui.showMessage("  " + tasks.get(index).toString());
+                    ui.showLine();
                 } else if (command.equals("delete")) {
                     int index = parseTaskIndex(command, rest, tasks.size());
                     Task removed = tasks.remove(index);
                     saveTasks(tasks);
-                    printMessage("Noted. I've removed this task:");
-                    printMessage("  " + removed.toString());
-                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
-                    printLine();
+                    ui.showMessage("Noted. I've removed this task:");
+                    ui.showMessage("  " + removed.toString());
+                    ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
+                    ui.showLine();
                 } else if (command.equals("todo")) {
                     if (rest.isEmpty()) {
                         throw new WillException("A todo needs a description! Try: todo <what you need to do>");
@@ -102,10 +94,10 @@ public class Will {
                     requireNoPipe(rest, "description");
                     tasks.add(new Todo(rest));
                     saveTasks(tasks);
-                    printMessage("Got it. I've added this task:");
-                    printMessage("  " + tasks.get(tasks.size() - 1).toString());
-                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
-                    printLine();
+                    ui.showMessage("Got it. I've added this task:");
+                    ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
+                    ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
+                    ui.showLine();
                 } else if (command.equals("deadline")) {
                     if (rest.isEmpty() || !rest.contains("/by")) {
                         throw new WillException("A deadline needs a description and a /by time! "
@@ -125,10 +117,10 @@ public class Will {
                     requireNoPipe(by, "/by time");
                     tasks.add(new Deadline(description, by));
                     saveTasks(tasks);
-                    printMessage("Got it. I've added this task:");
-                    printMessage("  " + tasks.get(tasks.size() - 1).toString());
-                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
-                    printLine();
+                    ui.showMessage("Got it. I've added this task:");
+                    ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
+                    ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
+                    ui.showLine();
                 } else if (command.equals("event")) {
                     if (rest.isEmpty() || !rest.contains("/from") || !rest.contains("/to")) {
                         throw new WillException("An event needs a description, a /from time and a /to time! "
@@ -160,17 +152,17 @@ public class Will {
                     requireNoPipe(to, "/to time");
                     tasks.add(new Event(description, from, to));
                     saveTasks(tasks);
-                    printMessage("Got it. I've added this task:");
-                    printMessage("  " + tasks.get(tasks.size() - 1).toString());
-                    printMessage("Now you have " + tasks.size() + " tasks in the list.");
-                    printLine();
+                    ui.showMessage("Got it. I've added this task:");
+                    ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
+                    ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
+                    ui.showLine();
                 } else {
                     throw new WillException("I don't recognize that command. "
                             + "Try: todo, deadline, event, list, on, mark, unmark, delete, or bye.");
                 }
             } catch (WillException e) {
-                printMessage("OOPS!!! " + e.getMessage());
-                printLine();
+                ui.showMessage("OOPS!!! " + e.getMessage());
+                ui.showLine();
             }
         }
 
@@ -241,7 +233,7 @@ public class Will {
      * aborting the whole load, so one corrupted line doesn't cost the
      * user every other saved task.
      */
-    private static ArrayList<Task> loadTasks() {
+    private static ArrayList<Task> loadTasks(Ui ui) {
         ArrayList<Task> tasks = new ArrayList<>();
         if (!Files.exists(DATA_FILE)) {
             return tasks;
@@ -255,11 +247,11 @@ public class Will {
                 try {
                     tasks.add(parseSavedTask(line));
                 } catch (WillException e) {
-                    printMessage("OOPS!!! Skipping a corrupted line in the data file: " + e.getMessage());
+                    ui.showMessage("OOPS!!! Skipping a corrupted line in the data file: " + e.getMessage());
                 }
             }
         } catch (IOException e) {
-            printMessage("OOPS!!! I couldn't load your saved tasks: " + e.getMessage());
+            ui.showMessage("OOPS!!! I couldn't load your saved tasks: " + e.getMessage());
         }
         return tasks;
     }
@@ -306,11 +298,4 @@ public class Will {
         return task;
     }
 
-    private static void printLine() {
-        System.out.println("    ____________________________________________________________");
-    }
-
-    private static void printMessage(String message) {
-        System.out.println("     " + message);
-    }
 }
