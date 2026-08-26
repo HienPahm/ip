@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 public class Deadline extends Task {
     protected FlexibleDate by;
 
@@ -14,5 +16,11 @@ public class Deadline extends Task {
     @Override
     public String toSaveFormat() {
         return super.toSaveFormat() + " | " + by.toSaveString();
+    }
+
+    @Override
+    public boolean occursOn(LocalDate date) {
+        LocalDate byDate = by.getDate();
+        return byDate != null && byDate.equals(date);
     }
 }

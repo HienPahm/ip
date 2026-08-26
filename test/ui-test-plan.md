@@ -243,7 +243,7 @@ bye
 
 **Expected output (error section only):**
 ```
-     OOPS!!! I don't recognize that command. Try: todo, deadline, event, list, mark, unmark, delete, or bye.
+     OOPS!!! I don't recognize that command. Try: todo, deadline, event, list, on, mark, unmark, delete, or bye.
 ```
 
 ### TC12 — mark with no task number
@@ -858,4 +858,86 @@ bye
 ```
      Here are the tasks in your list:
      1.[D][ ] return book (by: Oct 15 2019)
+```
+
+## Querying by date (Level 8 stretch goal)
+
+The `on <yyyy-MM-dd>` command prints every deadline/event occurring on
+that date: a deadline matches if its `/by` equals the queried date; an
+event matches if the queried date falls within `[from, to]` (or equals
+whichever single end is a recognized date, if only one is). A `todo`
+never matches, since it has no date. Matches are renumbered 1, 2, ...
+within the filtered results, not by their original position in `list`.
+
+### TC40 — `on` finds a matching deadline and an overlapping event
+
+**Aim:** A deadline due exactly on the queried date, and an event whose
+`[from, to]` range spans it, both show up; an unrelated todo and a
+deadline on a different date do not.
+
+**Inputs:**
+```
+deadline return book /by 2019-10-15
+event project meeting /from 2019-10-14 /to 2019-10-16
+todo unrelated todo
+deadline other thing /by 2019-11-01
+on 2019-10-15
+bye
+```
+
+**Expected output (on-command section only):**
+```
+     Here are the tasks occurring on Oct 15 2019:
+     1.[D][ ] return book (by: Oct 15 2019)
+     2.[E][ ] project meeting (from: Oct 14 2019 to: Oct 16 2019)
+```
+
+### TC41 — `on` with no matches prints an empty (but not erroring) list
+
+**Aim:** Querying a date nothing occurs on shows the header with zero
+results, not an error.
+
+**Inputs:**
+```
+deadline return book /by 2019-10-15
+on 2019-01-01
+bye
+```
+
+**Expected output (on-command section only):**
+```
+     Here are the tasks occurring on Jan 01 2019:
+    ____________________________________________________________
+     Seee yaaaa! Meet again soon!
+```
+
+### TC42 — `on` with an invalid date format is rejected
+
+**Aim:** A value that isn't `yyyy-MM-dd` is reported as a clear error,
+not a crash.
+
+**Inputs:**
+```
+on not-a-date
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! "not-a-date" isn't a date in yyyy-MM-dd format. Try: on <yyyy-MM-dd>, e.g. on 2019-10-15
+```
+
+### TC43 — `on` with no argument is rejected
+
+**Aim:** `on` alone (no date) reports a specific error.
+
+**Inputs:**
+```
+on
+bye
+```
+
+**Expected output (error section only):**
+```
+     OOPS!!! Tell me which date! Try: on <yyyy-MM-dd>, e.g. on 2019-10-15
 ```
