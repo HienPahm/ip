@@ -39,12 +39,14 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
-     * Gives this window the {@link Will} instance to send input to.
+     * Gives this window the {@link Will} instance to send input to, and
+     * shows its startup banner as the first message in the chat.
      *
      * @param will The chatbot backing this window.
      */
     public void setWill(Will will) {
         this.will = will;
+        dialogContainer.getChildren().add(DialogBox.getWillDialog(will.getGreeting(), WILL_IMAGE));
     }
 
     /**

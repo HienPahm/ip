@@ -25,10 +25,11 @@ public class MainApp extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/view/MainWindow.fxml"));
             AnchorPane ap = fxmlLoader.load();
             Scene scene = new Scene(ap);
+            scene.getStylesheets().add(MainApp.class.getResource("/view/style.css").toExternalForm());
             stage.setScene(scene);
             stage.setTitle("Will");
             stage.setMinHeight(600.0);
-            stage.setMinWidth(400.0);
+            stage.setMinWidth(480.0);
             fxmlLoader.<MainWindow>getController().setWill(will);
             stage.show();
         } catch (IOException e) {
