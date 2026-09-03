@@ -49,7 +49,7 @@ public class FlexibleDate {
 
     /**
      * The underlying date, or null if this value was free text that
-     * didn't match yyyy-MM-dd. Lets callers (e.g. an "on <date>" query)
+     * didn't match yyyy-MM-dd. Lets callers (e.g. an "on &lt;date&gt;" query)
      * compare against it directly.
      */
     public LocalDate getDate() {
@@ -59,7 +59,7 @@ public class FlexibleDate {
     /**
      * Parses a yyyy-MM-dd string the same way the constructor does,
      * for use where a date is required rather than optional (e.g. the
-     * "on <date>" query command). Throws DateTimeParseException if it
+     * "on &lt;date&gt;" query command). Throws DateTimeParseException if it
      * doesn't match, unlike the constructor, which treats a mismatch as
      * "fall back to free text" instead of an error.
      */
