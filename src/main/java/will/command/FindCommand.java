@@ -6,7 +6,7 @@ import will.Ui;
 import will.task.Task;
 
 /**
- * The "find <keyword>" command: lists every task whose description
+ * The "find &lt;keyword&gt;" command: lists every task whose description
  * contains the given keyword (case-insensitive).
  */
 public class FindCommand extends Command {
