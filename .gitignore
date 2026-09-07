@@ -21,3 +21,6 @@ text-ui-test/EXPECTED-UNIX.TXT
 
 # Data files
 data/
+
+# Scratch notes from AI-assisted sessions, not part of the project
+/Claude outputs/
