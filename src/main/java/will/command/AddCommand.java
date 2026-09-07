@@ -22,7 +22,12 @@ public class AddCommand extends Command {
 
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws WillException {
+        int sizeBeforeAdd = tasks.size();
         tasks.add(task);
+        // Adding a task should always grow the list by exactly one;
+        // this documents that assumption right where the next line
+        // relies on it (tasks.size() - 1 being the just-added task).
+        assert tasks.size() == sizeBeforeAdd + 1 : "adding a task should grow the list by exactly one";
         storage.save(tasks.getTasks());
         ui.showMessage("Got it. I've added this task:");
         ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());

@@ -27,6 +27,7 @@ public class Will {
      * @param filePath Where the task list is loaded from and saved to.
      */
     public Will(String filePath) {
+        assert filePath != null : "Will requires a non-null data file path";
         ui = new Ui();
         // Paths.get joins with the right separator for whatever OS this
         // runs on, e.g. "data/will.txt" -> data\will.txt on Windows.

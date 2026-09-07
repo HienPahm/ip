@@ -31,5 +31,9 @@ public abstract class Command {
             throw new WillException("Task number " + (index + 1) + " doesn't exist. "
                     + "You have " + tasks.size() + " task(s) in your list.");
         }
+        // Documents, right where callers rely on it, that this method's
+        // whole job is to guarantee this: anything past this point is
+        // free to assume the index is in range without re-checking.
+        assert index >= 0 && index < tasks.size() : "index should be in range once no exception was thrown";
     }
 }

@@ -24,6 +24,7 @@ public class TaskList implements Iterable<Task> {
 
     /** Wraps an already-populated list, e.g. one just read from Storage. */
     public TaskList(ArrayList<Task> tasks) {
+        assert tasks != null : "TaskList should never be constructed with a null list";
         this.tasks = tasks;
     }
 
@@ -32,13 +33,32 @@ public class TaskList implements Iterable<Task> {
         tasks.add(task);
     }
 
-    /** Removes and returns the task at the given index. */
+    /**
+     * Removes and returns the task at the given index.
+     *
+     * <p>Callers (currently the Command classes) are expected to have
+     * already bounds-checked {@code index} against user input via
+     * {@link will.command.Command#requireValidIndex}, which reports a
+     * bad index to the user as a {@link will.WillException} rather than
+     * letting it reach here. This assertion documents that expectation
+     * so a bug that skips that check surfaces immediately in testing,
+     * instead of silently corrupting the list.
+     */
     public Task remove(int index) {
+        assert index >= 0 && index < tasks.size()
+                : "remove() index " + index + " should already be validated by the caller";
         return tasks.remove(index);
     }
 
-    /** @return The task at the given index. */
+    /**
+     * Same precondition as {@link #remove(int)}: the index should
+     * already be known valid by the time it reaches here.
+     *
+     * @return The task at the given index.
+     */
     public Task get(int index) {
+        assert index >= 0 && index < tasks.size()
+                : "get() index " + index + " should already be validated by the caller";
         return tasks.get(index);
     }
 
