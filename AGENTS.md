@@ -41,6 +41,31 @@ Other:
 * Use lightweight tags unless the user requests an annotated tag.
 * Do not commit or push unless explicitly asked.
 
+## GitHub Flavored Markdown (GFMD)
+
+Use proper GFMD formatting whenever writing content that will render on
+GitHub: PR/issue descriptions, PR/issue comments, and Markdown files
+(README, docs, this file). Reference: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+
+Prefer these elements where they fit naturally, rather than plain
+unformatted paragraphs:
+
+* Headings (`#`, `##`, ...) to structure longer descriptions.
+* Bullet lists (`-` or `*`) and numbered lists (`1.`, `2.`, ...) for
+  multiple related points or ordered steps.
+* Task lists (`- [ ]` / `- [x]`) for checklists of things done or left
+  to do.
+* Fenced code blocks with a language tag (```java ... ```) for any
+  multi-line code or console output; inline code (`like this`) for a
+  single identifier, command, or short snippet.
+* Blockquotes (`>`) when quoting someone else's text or an external
+  source.
+* Hyperlinks (`[text](url)`) instead of bare URLs when linking to
+  documentation or other resources.
+* Text formatting (`**bold**`, `_italic_`, `~~strikethrough~~`) to
+  emphasize or mark out key words sparingly, not throughout.
+* An emoji here and there is fine for tone, but do not overuse it.
+
 ## Testing after code changes
 
 After making any code change that could affect the chatbot's console
