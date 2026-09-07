@@ -1,6 +1,8 @@
 package will.command;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import will.Storage;
 import will.TaskList;
@@ -20,12 +22,11 @@ public class OnCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
         ui.showMessage("Here are the tasks occurring on " + FlexibleDate.formatForDisplay(queryDate) + ":");
-        int matchNumber = 0;
-        for (Task task : tasks) {
-            if (task.occursOn(queryDate)) {
-                matchNumber++;
-                ui.showMessage(matchNumber + "." + task.toString());
-            }
+        List<Task> matches = tasks.getTasks().stream()
+                .filter(task -> task.occursOn(queryDate))
+                .collect(Collectors.toList());
+        for (int i = 0; i < matches.size(); i++) {
+            ui.showMessage((i + 1) + "." + matches.get(i).toString());
         }
     }
 }

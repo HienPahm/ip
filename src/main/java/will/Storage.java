@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import will.task.Deadline;
 import will.task.Event;
@@ -68,11 +69,10 @@ public class Storage {
     public void save(ArrayList<Task> tasks) throws WillException {
         try {
             Files.createDirectories(filePath.getParent());
-            StringBuilder content = new StringBuilder();
-            for (Task task : tasks) {
-                content.append(task.toSaveFormat()).append(System.lineSeparator());
-            }
-            Files.writeString(filePath, content.toString());
+            String content = tasks.stream()
+                    .map(task -> task.toSaveFormat() + System.lineSeparator())
+                    .collect(Collectors.joining());
+            Files.writeString(filePath, content);
         } catch (IOException e) {
             throw new WillException("I couldn't save your tasks to disk: " + e.getMessage());
         }
