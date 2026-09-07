@@ -1,5 +1,8 @@
 package will.command;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import will.Storage;
 import will.TaskList;
 import will.Ui;
@@ -32,5 +35,28 @@ public class AddCommand extends Command {
         ui.showMessage("Got it. I've added this task:");
         ui.showMessage("  " + tasks.get(tasks.size() - 1).toString());
         ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
+        warnAboutClashes(tasks, ui);
+    }
+
+    /**
+     * Warns the user if the just-added task's schedule clashes with any
+     * other task already in the list (e.g. two events with overlapping
+     * date ranges). This is a heads-up rather than a block: a clash
+     * might be intentional (e.g. two optional events on the same day),
+     * so the task is still added either way.
+     */
+    private void warnAboutClashes(TaskList tasks, Ui ui) {
+        List<Task> clashes = tasks.getTasks().stream()
+                .filter(other -> other != task)
+                .filter(task::clashesWith)
+                .collect(Collectors.toList());
+        if (clashes.isEmpty()) {
+            return;
+        }
+        String taskWord = clashes.size() == 1 ? "task" : "tasks";
+        ui.showMessage("Note: this clashes with " + clashes.size() + " other " + taskWord + " already in your list:");
+        for (Task clash : clashes) {
+            ui.showMessage("  " + clash.toString());
+        }
     }
 }

@@ -51,4 +51,32 @@ public class Event extends Task {
         }
         return false;
     }
+
+    /**
+     * Two events clash when both have a fully recognized [from, to]
+     * date range and those ranges overlap on at least one day. Only
+     * Event vs Event clashes are checked: a Todo has no schedule at
+     * all, and a Deadline is a single instant rather than a span, so
+     * neither can meaningfully "overlap" with anything. An event with
+     * free-text (unrecognized) dates is skipped rather than guessed
+     * at, the same way {@link #occursOn(LocalDate)} treats it.
+     *
+     * @param other The other task to check against.
+     * @return Whether this event's date range overlaps {@code other}'s.
+     */
+    @Override
+    public boolean clashesWith(Task other) {
+        if (!(other instanceof Event)) {
+            return false;
+        }
+        Event otherEvent = (Event) other;
+        LocalDate thisFrom = from.getDate();
+        LocalDate thisTo = to.getDate();
+        LocalDate otherFrom = otherEvent.from.getDate();
+        LocalDate otherTo = otherEvent.to.getDate();
+        if (thisFrom == null || thisTo == null || otherFrom == null || otherTo == null) {
+            return false;
+        }
+        return !thisFrom.isAfter(otherTo) && !otherFrom.isAfter(thisTo);
+    }
 }
