@@ -27,6 +27,15 @@ import will.task.Todo;
  * sees the TaskList — that check happens in the Command's execute().
  */
 public class Parser {
+    // Named as constants (rather than repeated string literals) so
+    // that both the parsing logic below and the "Try: ..." usage
+    // messages always agree on the exact delimiter text, and so the
+    // parsing code never has to hardcode a delimiter's length as a
+    // magic number (e.g. "+ 3" for "/by") to skip past it.
+    private static final String DELIMITER_BY = "/by";
+    private static final String DELIMITER_FROM = "/from";
+    private static final String DELIMITER_TO = "/to";
+
     /**
      * Turns one line of raw user input into the {@link Command} that
      * knows how to carry it out.
@@ -122,22 +131,23 @@ public class Parser {
      * time) into an AddCommand wrapping a Deadline.
      */
     private static Command parseDeadline(String rest) throws WillException {
-        if (rest.isEmpty() || !rest.contains("/by")) {
-            throw new WillException("A deadline needs a description and a /by time! "
-                    + "Try: deadline <what you need to do> /by <when it's due>");
+        if (rest.isEmpty() || !rest.contains(DELIMITER_BY)) {
+            throw new WillException("A deadline needs a description and a " + DELIMITER_BY + " time! "
+                    + "Try: deadline <what you need to do> " + DELIMITER_BY + " <when it's due>");
         }
-        String description = rest.substring(0, rest.indexOf("/by")).trim();
-        String by = rest.substring(rest.indexOf("/by") + 3).trim();
+        int byIndex = rest.indexOf(DELIMITER_BY);
+        String description = rest.substring(0, byIndex).trim();
+        String by = rest.substring(byIndex + DELIMITER_BY.length()).trim();
         if (description.isEmpty()) {
-            throw new WillException("A deadline needs a description before /by! "
-                    + "Try: deadline <what you need to do> /by <when it's due>");
+            throw new WillException("A deadline needs a description before " + DELIMITER_BY + "! "
+                    + "Try: deadline <what you need to do> " + DELIMITER_BY + " <when it's due>");
         }
         if (by.isEmpty()) {
             throw new WillException("Tell me when this deadline is due! "
-                    + "Try: deadline <what you need to do> /by <when it's due>");
+                    + "Try: deadline <what you need to do> " + DELIMITER_BY + " <when it's due>");
         }
         requireNoPipe(description, "description");
-        requireNoPipe(by, "/by time");
+        requireNoPipe(by, DELIMITER_BY + " time");
         return new AddCommand(new Deadline(description, by));
     }
 
@@ -146,34 +156,35 @@ public class Parser {
      * and a /to time) into an AddCommand wrapping an Event.
      */
     private static Command parseEvent(String rest) throws WillException {
-        if (rest.isEmpty() || !rest.contains("/from") || !rest.contains("/to")) {
-            throw new WillException("An event needs a description, a /from time and a /to time! "
-                    + "Try: event <what's happening> /from <start> /to <end>");
+        if (rest.isEmpty() || !rest.contains(DELIMITER_FROM) || !rest.contains(DELIMITER_TO)) {
+            throw new WillException("An event needs a description, a " + DELIMITER_FROM + " time and a "
+                    + DELIMITER_TO + " time! "
+                    + "Try: event <what's happening> " + DELIMITER_FROM + " <start> " + DELIMITER_TO + " <end>");
         }
-        int fromIndex = rest.indexOf("/from");
-        int toIndex = rest.indexOf("/to");
+        int fromIndex = rest.indexOf(DELIMITER_FROM);
+        int toIndex = rest.indexOf(DELIMITER_TO);
         if (fromIndex > toIndex) {
-            throw new WillException("Your /from time needs to come before /to! "
-                    + "Try: event <what's happening> /from <start> /to <end>");
+            throw new WillException("Your " + DELIMITER_FROM + " time needs to come before " + DELIMITER_TO + "! "
+                    + "Try: event <what's happening> " + DELIMITER_FROM + " <start> " + DELIMITER_TO + " <end>");
         }
         String description = rest.substring(0, fromIndex).trim();
-        String from = rest.substring(fromIndex + 5, toIndex).trim();
-        String to = rest.substring(toIndex + 3).trim();
+        String from = rest.substring(fromIndex + DELIMITER_FROM.length(), toIndex).trim();
+        String to = rest.substring(toIndex + DELIMITER_TO.length()).trim();
         if (description.isEmpty()) {
-            throw new WillException("An event needs a description before /from! "
-                    + "Try: event <what's happening> /from <start> /to <end>");
+            throw new WillException("An event needs a description before " + DELIMITER_FROM + "! "
+                    + "Try: event <what's happening> " + DELIMITER_FROM + " <start> " + DELIMITER_TO + " <end>");
         }
         if (from.isEmpty()) {
             throw new WillException("Tell me when this event starts! "
-                    + "Try: event <what's happening> /from <start> /to <end>");
+                    + "Try: event <what's happening> " + DELIMITER_FROM + " <start> " + DELIMITER_TO + " <end>");
         }
         if (to.isEmpty()) {
             throw new WillException("Tell me when this event ends! "
-                    + "Try: event <what's happening> /from <start> /to <end>");
+                    + "Try: event <what's happening> " + DELIMITER_FROM + " <start> " + DELIMITER_TO + " <end>");
         }
         requireNoPipe(description, "description");
-        requireNoPipe(from, "/from time");
-        requireNoPipe(to, "/to time");
+        requireNoPipe(from, DELIMITER_FROM + " time");
+        requireNoPipe(to, DELIMITER_TO + " time");
         return new AddCommand(new Event(description, from, to));
     }
 
