@@ -74,4 +74,17 @@ public class Task {
     public boolean occursOn(LocalDate date) {
         return false;
     }
+
+    /**
+     * Whether this task's schedule clashes with {@code other}'s, e.g.
+     * two events whose date ranges overlap. A plain Task/Todo has no
+     * schedule to clash with, so this always returns false here;
+     * {@link Event} overrides it with an actual overlap check.
+     *
+     * @param other The other task to check against.
+     * @return Whether the two tasks clash.
+     */
+    public boolean clashesWith(Task other) {
+        return false;
+    }
 }
