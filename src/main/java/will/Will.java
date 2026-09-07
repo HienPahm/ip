@@ -27,6 +27,7 @@ public class Will {
      * @param filePath Where the task list is loaded from and saved to.
      */
     public Will(String filePath) {
+        assert filePath != null : "Will requires a non-null data file path";
         ui = new Ui();
         // Paths.get joins with the right separator for whatever OS this
         // runs on, e.g. "data/will.txt" -> data\will.txt on Windows.
@@ -133,11 +134,13 @@ public class Will {
     private static String stripCliFraming(String raw) {
         StringBuilder cleaned = new StringBuilder();
         for (String line : raw.split("\n", -1)) {
-            // Only showMessage()'s 5-space-indented lines are real
-            // reply text; this also drops the divider line (4 spaces)
-            // and any raw, unframed output like Ui's ASCII banner.
-            if (line.startsWith("     ")) {
-                cleaned.append(line.substring(5)).append('\n');
+            // Only showMessage()'s indented lines are real reply text;
+            // this also drops the divider line (a shorter indent) and
+            // any raw, unframed output like Ui's ASCII banner. Uses
+            // Ui.MESSAGE_INDENT directly so this can never drift out
+            // of sync with what showMessage() actually prints.
+            if (line.startsWith(Ui.MESSAGE_INDENT)) {
+                cleaned.append(line.substring(Ui.MESSAGE_INDENT.length())).append('\n');
             }
         }
         return cleaned.toString().strip();

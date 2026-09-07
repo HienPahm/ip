@@ -23,6 +23,7 @@ public class Storage {
 
     /** @param filePath Where the task list is loaded from and saved to. */
     public Storage(Path filePath) {
+        assert filePath != null : "Storage requires a non-null file path";
         this.filePath = filePath;
     }
 

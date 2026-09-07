@@ -23,6 +23,7 @@ public class FlexibleDate {
 
     /** @param value The raw text to interpret, e.g. "2019-10-15" or "Sunday". */
     public FlexibleDate(String value) {
+        assert value != null : "FlexibleDate should never be constructed with a null value";
         LocalDate parsed;
         try {
             parsed = LocalDate.parse(value, INPUT_FORMAT);
@@ -31,6 +32,8 @@ public class FlexibleDate {
         }
         this.date = parsed;
         this.text = (parsed == null) ? value : null;
+        assert (this.date != null) != (this.text != null)
+                : "Exactly one of date/text should be set, never both or neither";
     }
 
     /** How this value should be shown to the user, e.g. in toString(). */

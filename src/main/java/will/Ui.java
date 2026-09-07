@@ -10,6 +10,15 @@ import java.util.Scanner;
  * lives in one place.
  */
 public class Ui {
+    /**
+     * Leading indent placed before every message printed inside the
+     * response frame. Named (rather than a literal repeated at each
+     * call site) so that {@link Will#stripCliFraming(String)} can
+     * recognise exactly the lines this class indents, instead of
+     * hardcoding a second copy of the same spacing.
+     */
+    public static final String MESSAGE_INDENT = "     ";
+
     private static final String LOGO = " __        _____ _     _     \n"
             + " \\ \\      / /_ _| |   | |    \n"
             + "  \\ \\ /\\ / / | || |   | |    \n"
@@ -38,7 +47,7 @@ public class Ui {
 
     /** Prints a single indented message line inside the response frame. */
     public void showMessage(String message) {
-        System.out.println("     " + message);
+        System.out.println(MESSAGE_INDENT + message);
     }
 
     /** Prints an error message in the same "OOPS!!!" style used throughout. */
