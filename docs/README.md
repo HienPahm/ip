@@ -13,7 +13,8 @@ benefits of a Graphical User Interface (GUI).
    `java -jar will.jar` command to run the application. A GUI similar to the one below
    should appear in a few seconds.
 
-   ![Ui](Ui.png)
+   <img src="Ui.png" alt="Ui" width="480">
+
 5. Type a command in the command box and press Enter to execute it. e.g. typing
    `list` and pressing Enter will list all your tasks.
 6. Refer to the [Features](#features) below for details of each command.

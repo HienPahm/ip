@@ -32,10 +32,19 @@ public class MainWindow extends AnchorPane {
 
     private Will will;
 
-    /** Keeps the scroll pane pinned to the newest message as it grows. */
+    /**
+     * Scrolls to the newest message whenever one is added, without
+     * locking the scroll bar in place. A permanent
+     * {@code vvalueProperty().bind(...)} would force the view to the
+     * bottom on every layout pass, silently blocking the user from
+     * scrolling up to read earlier messages; a listener instead nudges
+     * the view down only when the dialog list actually grows, leaving
+     * manual scrolling free the rest of the time.
+     */
     @FXML
     public void initialize() {
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        dialogContainer.heightProperty().addListener((observable, oldValue, newValue) ->
+                scrollPane.setVvalue((Double) newValue));
     }
 
     /**
