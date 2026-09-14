@@ -1,5 +1,8 @@
 package will.command;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import will.Storage;
 import will.TaskList;
 import will.Ui;
@@ -23,13 +26,16 @@ public class FindCommand extends Command {
 
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
+        List<Task> matches = tasks.getTasks().stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(keyword.toLowerCase()))
+                .collect(Collectors.toList());
+        if (matches.isEmpty()) {
+            ui.showMessage("No matches for \"" + keyword + "\". Try a different word?");
+            return;
+        }
         ui.showMessage("Here are the matching tasks in your list:");
-        int matchNumber = 0;
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase().contains(keyword.toLowerCase())) {
-                matchNumber++;
-                ui.showMessage(matchNumber + "." + task.toString());
-            }
+        for (int i = 0; i < matches.size(); i++) {
+            ui.showMessage((i + 1) + "." + matches.get(i).toString());
         }
     }
 }

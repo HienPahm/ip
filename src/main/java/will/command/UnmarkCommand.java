@@ -23,7 +23,7 @@ public class UnmarkCommand extends Command {
         requireValidIndex(tasks, index);
         tasks.get(index).markAsNotDone();
         storage.save(tasks.getTasks());
-        ui.showMessage("OK, I've marked this task as not done yet:");
+        ui.showMessage("No worries, back on the list it goes:");
         ui.showMessage("  " + tasks.get(index).toString());
     }
 }

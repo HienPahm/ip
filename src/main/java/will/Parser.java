@@ -198,8 +198,8 @@ public class Parser {
      */
     private static void requireNoPipe(String field, String label) throws WillException {
         if (field.contains("|")) {
-            throw new WillException("Sorry, the " + label + " can't contain a \"|\" character — "
-                    + "try rephrasing without it.");
+            throw new WillException("Sorry, the " + label + " can't contain a \"|\" character. "
+                    + "Try rephrasing without it.");
         }
     }
 }
