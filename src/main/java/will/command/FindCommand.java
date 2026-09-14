@@ -12,7 +12,11 @@ import will.task.Task;
 public class FindCommand extends Command {
     private final String keyword;
 
-    /** @param keyword The text to search for in each task's description. */
+    /**
+     * Creates a command that lists tasks matching the given keyword.
+     *
+     * @param keyword The text to search for in each task's description.
+     */
     public FindCommand(String keyword) {
         this.keyword = keyword;
     }

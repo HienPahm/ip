@@ -9,7 +9,11 @@ import will.WillException;
 public class MarkCommand extends Command {
     private final int index;
 
-    /** @param index Zero-based index of the task to mark done. */
+    /**
+     * Creates a command that marks the task at the given index done.
+     *
+     * @param index Zero-based index of the task to mark done.
+     */
     public MarkCommand(int index) {
         this.index = index;
     }

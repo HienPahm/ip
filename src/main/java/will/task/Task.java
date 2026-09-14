@@ -15,6 +15,8 @@ public class Task {
     protected TaskType type;
 
     /**
+     * Creates a task with the given description and type, initially not done.
+     *
      * @param description What needs to be done.
      * @param type Which kind of task this is.
      */

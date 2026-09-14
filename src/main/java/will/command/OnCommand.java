@@ -14,7 +14,11 @@ import will.task.Task;
 public class OnCommand extends Command {
     private final LocalDate queryDate;
 
-    /** @param queryDate The date to list tasks for. */
+    /**
+     * Creates a command that lists tasks occurring on the given date.
+     *
+     * @param queryDate The date to list tasks for.
+     */
     public OnCommand(LocalDate queryDate) {
         this.queryDate = queryDate;
     }

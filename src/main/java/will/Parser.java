@@ -189,7 +189,8 @@ public class Parser {
     }
 
     /**
-     * The save file format is pipe-delimited, so a "|" typed into a
+     * Rejects {@code field} if it contains a "|" character. The save
+     * file format is pipe-delimited, so a "|" typed into a
      * description/by/from/to field would silently corrupt it (it'd be
      * misread as an extra field on the next load). Reject it up front
      * with a clear message instead of accepting input we can't save

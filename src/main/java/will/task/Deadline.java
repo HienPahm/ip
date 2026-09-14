@@ -7,6 +7,8 @@ public class Deadline extends Task {
     protected FlexibleDate by;
 
     /**
+     * Creates a deadline task due at the given time.
+     *
      * @param description What needs to be done.
      * @param by When it's due. Recognized as a date if it matches
      *           yyyy-MM-dd (see {@link FlexibleDate}), otherwise kept as

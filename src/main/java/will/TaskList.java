@@ -51,7 +51,9 @@ public class TaskList implements Iterable<Task> {
     }
 
     /**
-     * Same precondition as {@link #remove(int)}: the index should
+     * Returns the task at the given index.
+     *
+     * <p>Same precondition as {@link #remove(int)}: the index should
      * already be known valid by the time it reaches here.
      *
      * @return The task at the given index.
@@ -68,8 +70,11 @@ public class TaskList implements Iterable<Task> {
     }
 
     /**
-     * The underlying ArrayList, for callers that still need it directly
-     * (currently Storage#save, which serializes the whole list to disk).
+     * Returns the underlying ArrayList, for callers that still need it
+     * directly (currently Storage#save, which serializes the whole list
+     * to disk).
+     *
+     * @return The underlying task list.
      */
     public ArrayList<Task> getTasks() {
         return tasks;

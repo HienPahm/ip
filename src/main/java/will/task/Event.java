@@ -8,6 +8,8 @@ public class Event extends Task {
     protected FlexibleDate to;
 
     /**
+     * Creates an event task spanning the given start and end times.
+     *
      * @param description What's happening.
      * @param from When it starts. Recognized as a date if it matches
      *             yyyy-MM-dd (see {@link FlexibleDate}), otherwise kept

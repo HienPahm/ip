@@ -21,7 +21,11 @@ import will.task.Todo;
 public class Storage {
     private final Path filePath;
 
-    /** @param filePath Where the task list is loaded from and saved to. */
+    /**
+     * Creates a Storage backed by the given file.
+     *
+     * @param filePath Where the task list is loaded from and saved to.
+     */
     public Storage(Path filePath) {
         assert filePath != null : "Storage requires a non-null file path";
         this.filePath = filePath;
